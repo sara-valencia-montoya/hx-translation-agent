@@ -381,7 +381,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <option value="autre">Autre contenu</option>
       </select>
       <div class="spinner" id="spinner"></div>
-      <button onclick="translate()" id="btnTranslate">Traduire</button>
+      <button onclick="runTranslate()" id="btnTranslate">Traduire</button>
       <button class="clear" onclick="clearAll()">Effacer</button>
     </div>
 
@@ -507,7 +507,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('output').innerHTML = '<span class="placeholder">La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.</span>';
   }
 
-  async function translate() {
+  async function runTranslate() {
     if (!activeKey) { changeKey(); return; }
     const key = activeKey;
 
@@ -621,7 +621,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   document.addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') translate();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runTranslate();
   });
 
   initKeyGate();
