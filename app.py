@@ -505,6 +505,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div id="detectConfirm" class="detect-confirm hidden"></div>
         <div class="spinner" id="spinner"></div>
         <button onclick="runTranslate()" id="btnTranslate" data-i18n="btnTranslate"></button>
+        <button class="export-btn" onclick="document.getElementById('fileImport').click()" data-i18n="btnImport"></button>
+        <input type="file" id="fileImport" accept=".md,.csv,.txt" style="display:none" onchange="importFile(event)"/>
         <button class="clear" onclick="clearAll()" data-i18n="btnClear"></button>
       </div>
     </div>
@@ -678,6 +680,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       loadingText: 'Translating…',
       exportCopy: 'Copy',
       exportCopied: 'Copied!',
+      btnImport: '📂 Import',
+      importError: 'Unsupported file. Use .md or .csv',
     },
     fr: {
       headerTitle: 'Assistant de traduction HomeExchange',
@@ -709,6 +713,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       loadingText: 'Traduction en cours…',
       exportCopy: 'Copier',
       exportCopied: 'Copié !',
+      btnImport: '📂 Importer',
+      importError: 'Fichier non supporté. Utilise .md ou .csv',
     }
   };
 
@@ -807,6 +813,44 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   let lastRawOutput = '';
+
+  function importFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['md', 'csv', 'txt'].includes(ext)) {
+      alert(t('importError'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let content = e.target.result;
+
+      // For CSV: convert rows back to a readable markdown-like table for the textarea
+      if (ext === 'csv') {
+        const lines = content.trim().split('\\n');
+        const tableLines = lines.map(line => {
+          const cells = line.match(/("([^"]|"")*"|[^,]*)(,("([^"]|"")*"|[^,]*))*/)
+            ? line.split(',').map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"').trim())
+            : [line];
+          return '| ' + cells.join(' | ') + ' |';
+        });
+        // Insert separator after header
+        if (tableLines.length > 1) {
+          const sep = '| ' + tableLines[0].split('|').slice(1,-1).map(() => '---').join(' | ') + ' |';
+          tableLines.splice(1, 0, sep);
+        }
+        content = tableLines.join('\\n');
+      }
+
+      document.getElementById('inputText').value = content;
+      // Reset file input so the same file can be re-imported
+      event.target.value = '';
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
 
   function clearAll() {
     document.getElementById('inputText').value = '';
