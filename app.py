@@ -1372,7 +1372,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (!target || target === '' || target.startsWith('[')) continue;
       // Skip rows where target is a status note (starts with emoji checkmarks etc.)
       if (/^[✅❌⚠️🔴🟡🟢]/.test(target)) continue;
-      parts.push(cells[0] ? cells[0] + ': ' + target : target);
+      parts.push(target);
     }
 
     return parts.length > 0 ? parts.join('\\n\\n') : raw;
