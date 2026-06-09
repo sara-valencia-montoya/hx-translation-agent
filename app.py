@@ -344,8 +344,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     min-height: 200px;
   }
   .hx-loading.visible { display: flex; }
-  .hx-logo-anim {
-    animation: hx-breathe 1.6s ease-in-out infinite;
+  .hx-spinner-ring {
+    width: 48px; height: 48px;
+    border: 3px solid rgba(247,168,0,0.15);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: hx-spin 0.9s linear infinite;
   }
   .hx-loading-text {
     color: var(--muted);
@@ -353,10 +357,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     letter-spacing: 0.5px;
     animation: hx-fade 1.6s ease-in-out infinite;
   }
-  @keyframes hx-breathe {
-    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-    50% { transform: scale(1.12) rotate(30deg); opacity: 0.75; }
-  }
+  @keyframes hx-spin { to { transform: rotate(360deg); } }
   @keyframes hx-fade {
     0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
@@ -433,13 +434,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 <header>
   <div class="logo">
-    <svg width="22" height="22" viewBox="0 0 40 40" style="flex-shrink:0">
-      <g transform="translate(20,20)" stroke="#F7A800" stroke-width="4" stroke-linecap="round">
-        <line x1="0" y1="-15" x2="0" y2="15"/>
-        <line x1="-13" y1="-7.5" x2="13" y2="7.5"/>
-        <line x1="-13" y1="7.5" x2="13" y2="-7.5"/>
-      </g>
-    </svg>
     <span>home<strong>exchange</strong> <span style="color:var(--muted);font-weight:400">translate</span></span>
   </div>
   <div class="badge">EN · FR · ES</div>
@@ -512,13 +506,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <span class="placeholder" data-i18n="placeholder"></span>
     </div>
     <div class="hx-loading" id="hxLoading">
-      <svg width="56" height="56" viewBox="0 0 40 40" class="hx-logo-anim">
-        <g transform="translate(20,20)" stroke="#F7A800" stroke-width="4" stroke-linecap="round">
-          <line x1="0" y1="-15" x2="0" y2="15"/>
-          <line x1="-13" y1="-7.5" x2="13" y2="7.5"/>
-          <line x1="-13" y1="7.5" x2="13" y2="-7.5"/>
-        </g>
-      </svg>
+      <div class="hx-spinner-ring"></div>
       <span class="hx-loading-text" data-i18n="loadingText"></span>
     </div>
   </div>
