@@ -457,7 +457,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       </div>
     </div>
 
-    <textarea id="inputText" placeholder="Colle ici le contenu à traduire (email, UI copy, CTA, blog…)&#10;&#10;Clique sur ⟳ Détecter pour identifier la langue source avant de traduire."></textarea>
+    <textarea id="inputText" data-i18n="inputPlaceholder"></textarea>
   </div>
 
   <!-- Right panel: output -->
@@ -532,6 +532,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectNoText: 'Paste some content first.',
       alertDetectError: 'Detection error: ',
       detectedLabel: 'Source detected: ',
+      inputPlaceholder: 'Paste content to translate here (email, UI copy, CTA, blog…)\n\nClick ⟳ Detect to identify the source language before translating.',
     },
     fr: {
       headerTitle: 'Assistant de traduction HomeExchange',
@@ -559,6 +560,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectNoText: 'Colle d\'abord un contenu.',
       alertDetectError: 'Erreur de détection : ',
       detectedLabel: 'Source détectée : ',
+      inputPlaceholder: 'Colle ici le contenu à traduire (email, UI copy, CTA, blog…)\n\nClique sur ⟳ Détecter pour identifier la langue source avant de traduire.',
     }
   };
 
@@ -577,7 +579,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const key = el.dataset.i18n;
       const val = t(key);
       if (el.tagName === 'OPTION') el.textContent = val;
-      else if (el.tagName === 'INPUT') el.placeholder = val;
+      else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
       else el.textContent = val;
     });
     document.getElementById('headerTitle').textContent = t('headerTitle');
