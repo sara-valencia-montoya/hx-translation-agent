@@ -532,7 +532,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectNoText: 'Paste some content first.',
       alertDetectError: 'Detection error: ',
       detectedLabel: 'Source detected: ',
-      inputPlaceholder: 'Paste content to translate here (email, UI copy, CTA, blog…)\n\nClick ⟳ Detect to identify the source language before translating.',
+      inputPlaceholder: 'Paste content to translate here (email, UI copy, CTA, blog…)\\n\\nClick ⟳ Detect to identify the source language before translating.',
     },
     fr: {
       headerTitle: 'Assistant de traduction HomeExchange',
@@ -560,7 +560,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectNoText: 'Colle d\'abord un contenu.',
       alertDetectError: 'Erreur de détection : ',
       detectedLabel: 'Source détectée : ',
-      inputPlaceholder: 'Colle ici le contenu à traduire (email, UI copy, CTA, blog…)\n\nClique sur ⟳ Détecter pour identifier la langue source avant de traduire.',
+      inputPlaceholder: 'Colle ici le contenu à traduire (email, UI copy, CTA, blog…)\\n\\nClique sur ⟳ Détecter pour identifier la langue source avant de traduire.',
     }
   };
 
