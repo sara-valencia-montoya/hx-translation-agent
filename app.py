@@ -1,16 +1,135 @@
 import os
 import json
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, StreamingResponse
+import secrets
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import anthropic
 from dotenv import load_dotenv
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 load_dotenv()
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+ALLOWED_DOMAIN = "homeexchange.com"
+SESSION_COOKIE  = "hx_auth"
+SESSION_SECRET  = os.getenv("SESSION_SECRET", secrets.token_hex(32))
+signer = URLSafeTimedSerializer(SESSION_SECRET)
+
+def get_session(request: Request):
+    token = request.cookies.get(SESSION_COOKIE)
+    if not token:
+        return None
+    try:
+        return signer.loads(token, max_age=86400 * 7)  # 7 days
+    except (BadSignature, SignatureExpired):
+        return None
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    public = {"/login", "/login/check"}
+    if request.url.path in public:
+        return await call_next(request)
+    if not get_session(request):
+        return RedirectResponse("/login")
+    return await call_next(request)
+
+LOGIN_PAGE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>homeexchange translate — Sign in</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #0f1117; color: #e8edf3;
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .card {
+    background: #1a1d27; border: 1px solid #2a2d3a;
+    border-radius: 16px; padding: 48px 52px; width: 420px;
+    display: flex; flex-direction: column; gap: 28px;
+  }
+  .brand { font-size: 18px; font-weight: 700; }
+  .brand strong { color: #F7A800; }
+  .brand span { color: #8b97a8; font-weight: 400; }
+  h2 { font-size: 22px; font-weight: 700; line-height: 1.3; }
+  p { color: #8b97a8; font-size: 14px; line-height: 1.6; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 13px; color: #8b97a8; font-weight: 500; }
+  input[type=email] {
+    background: #0f1117; border: 1px solid #2a2d3a; border-radius: 10px;
+    color: #e8edf3; font-size: 15px; padding: 12px 16px; outline: none;
+    transition: border-color 0.15s; width: 100%;
+  }
+  input[type=email]:focus { border-color: rgba(247,168,0,0.5); }
+  button {
+    background: #F7A800; color: #1a1200; border: none; border-radius: 100px;
+    font-size: 15px; font-weight: 700; padding: 13px 24px; cursor: pointer;
+    transition: background 0.15s; width: 100%;
+  }
+  button:hover { background: #ffc53d; }
+  .error {
+    background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 8px; padding: 12px 16px; color: #f87171; font-size: 14px;
+    display: none;
+  }
+  .error.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">home<strong>exchange</strong> <span>translate</span></div>
+  <div>
+    <h2>Sign in to continue</h2>
+    <p style="margin-top:8px">This tool is reserved for HomeExchange team members.</p>
+  </div>
+  <form method="POST" action="/login/check">
+    <div class="field">
+      <label>Work email</label>
+      <input type="email" name="email" placeholder="you@homeexchange.com" required autofocus/>
+    </div>
+    <div class="error {error_class}" id="err">{error_msg}</div>
+    <button type="submit" style="margin-top:20px">Continue</button>
+  </form>
+</div>
+</body>
+</html>"""
+
+@app.get("/login", response_class=HTMLResponse)
+def login_page(error: str = ""):
+    if error == "domain":
+        html = LOGIN_PAGE.replace("{error_class}", "visible").replace(
+            "{error_msg}", "Only @homeexchange.com email addresses are allowed.")
+    elif error == "invalid":
+        html = LOGIN_PAGE.replace("{error_class}", "visible").replace(
+            "{error_msg}", "Please enter a valid email address.")
+    else:
+        html = LOGIN_PAGE.replace("{error_class}", "").replace("{error_msg}", "")
+    return html
+
+@app.post("/login/check")
+async def login_check(request: Request, email: str = Form(...)):
+    email = email.strip().lower()
+    if "@" not in email:
+        return RedirectResponse("/login?error=invalid", status_code=303)
+    if not email.endswith(f"@{ALLOWED_DOMAIN}"):
+        return RedirectResponse("/login?error=domain", status_code=303)
+    token = signer.dumps({"email": email})
+    resp = RedirectResponse("/", status_code=303)
+    resp.set_cookie(SESSION_COOKIE, token, httponly=True, max_age=86400 * 7, samesite="lax")
+    return resp
+
+@app.get("/logout")
+def logout():
+    resp = RedirectResponse("/login", status_code=303)
+    resp.delete_cookie(SESSION_COOKIE)
+    return resp
 
 SYSTEM_PROMPT = """Tu es un traducteur ou traductrice professionnel(le) spécialisé(e) HomeExchange.
 
@@ -590,6 +709,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <button id="btnLangEN" class="ui-lang-btn active" onclick="setUiLang('en')">EN</button>
     <button id="btnLangFR" class="ui-lang-btn" onclick="setUiLang('fr')">FR</button>
   </div>
+  <a href="/logout" style="font-size:12px;color:var(--muted);text-decoration:none;margin-left:12px;white-space:nowrap" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Sign out</a>
 </header>
 
 <main>
