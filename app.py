@@ -470,6 +470,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     word-break: break-word;
   }
   .output-box.streaming { border-color: rgba(109,196,255,0.3); }
+  .lang-result-badge {
+    display: inline-block; background: rgba(247,168,0,0.12); color: var(--accent);
+    border: 1px solid rgba(247,168,0,0.3); border-radius: 100px;
+    font-size: 12px; font-weight: 700; padding: 3px 12px; margin: 16px 0 8px;
+    letter-spacing: 1px;
+  }
+  .lang-result-block { margin-bottom: 8px; }
   .output-box table { border-collapse: collapse; width: 100%; margin: 16px 0; }
   .output-box th, .output-box td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; vertical-align: top; }
   .output-box th { background: rgba(109,196,255,0.06); color: var(--accent); font-size: 13px; }
@@ -527,6 +534,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .lang-group { display: flex; align-items: center; gap: 6px; }
   .lang-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
   .lang-arrow { color: var(--accent); font-size: 18px; font-weight: 700; padding: 0 2px; }
+  .lang-checks { display: flex; gap: 6px; }
+  .lang-check {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 100px; padding: 5px 12px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    transition: all 0.15s; user-select: none;
+  }
+  .lang-check:has(input:checked) { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.08); }
+  .lang-check input { display: none; }
   .detect-btn {
     background: transparent;
     border: 1px solid var(--border);
@@ -751,12 +768,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
         <span class="lang-arrow">→</span>
         <div class="lang-group">
-          <label class="lang-label">Cible</label>
-          <select id="targetLang">
-            <option value="FR">FR</option>
-            <option value="EN">EN</option>
-            <option value="ES">ES</option>
-          </select>
+          <label class="lang-label" data-i18n="labelTarget"></label>
+          <div class="lang-checks" id="targetLangs">
+            <label class="lang-check"><input type="checkbox" value="FR" checked> FR</label>
+            <label class="lang-check"><input type="checkbox" value="EN"> EN</label>
+            <label class="lang-check"><input type="checkbox" value="ES"> ES</label>
+          </div>
         </div>
         <select id="contentType" style="margin-left:8px">
           <option value="auto" data-i18n="typeAuto"></option>
@@ -987,6 +1004,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectError: 'Detection error: ',
       detectedLabel: 'Source detected: ',
       inputPlaceholder: 'Paste content to translate here (email, UI copy, CTA, blog…)\\n\\nClick ⟳ Detect to identify the source language before translating.',
+      labelTarget: 'Target',
       loadingText: 'Translating…',
       exportCopy: 'Copy',
       exportCopied: 'Copied!',
@@ -1024,6 +1042,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectError: 'Erreur de détection : ',
       detectedLabel: 'Source détectée : ',
       inputPlaceholder: 'Colle ici le contenu à traduire (email, UI copy, CTA, blog…)\\n\\nClique sur ⟳ Détecter pour identifier la langue source avant de traduire.',
+      labelTarget: 'Cible',
       loadingText: 'Traduction en cours…',
       exportCopy: 'Copier',
       exportCopied: 'Copié !',
@@ -1510,78 +1529,94 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
   }
 
+  function getTargetLangs() {
+    return [...document.querySelectorAll('#targetLangs input:checked')].map(i => i.value);
+  }
+
+  async function streamTranslation(message, lang) {
+    const resp = await fetch('/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: message, api_key: activeKey })
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || resp.statusText);
+    }
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of decoder.decode(value, { stream: true }).split('\\n')) {
+        if (line.startsWith('data: ')) {
+          try { const d = JSON.parse(line.slice(6)); if (d.text) full += d.text; } catch {}
+        }
+      }
+    }
+    return full;
+  }
+
   async function runTranslate() {
     if (!activeKey) { changeKey(); return; }
-    const key = activeKey;
 
     const text = document.getElementById('inputText').value.trim();
     if (!text) { alert(t('alertNoText')); return; }
 
+    const targets = getTargetLangs();
+    if (!targets.length) { alert('Select at least one target language.'); return; }
+
     const sourceLang = document.getElementById('sourceLang').value;
-    const lang = document.getElementById('targetLang').value;
-    const type = document.getElementById('contentType').value;
-
-    const btn = document.getElementById('btnTranslate');
-    const spinner = document.getElementById('spinner');
-    const output = document.getElementById('output');
-
-    const loader = document.getElementById('hxLoading');
+    const type       = document.getElementById('contentType').value;
+    const btn        = document.getElementById('btnTranslate');
+    const output     = document.getElementById('output');
+    const loader     = document.getElementById('hxLoading');
 
     btn.disabled = true;
     output.style.display = 'none';
     loader.className = 'hx-loading visible';
     startLoadingAnim();
 
-    const tsvMsg = buildTsvMessage(sourceLang, lang, type);
-    let userMessage;
-    if (tsvMsg) {
-      userMessage = tsvMsg;
-    } else {
-      const srcInfo = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
-      const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
-      userMessage = `Translate this content${srcInfo} to ${lang}${typeInfo}:\\n\\n${text}`;
-    }
-
     try {
-      const resp = await fetch('/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: userMessage, api_key: key })
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json();
-        output.textContent = 'Error: ' + (err.detail || resp.statusText);
-        return;
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let full = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\\n')) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.text) full += data.text;
-            } catch {}
-          }
-        }
-      }
+      // Build one message per target language and run all in parallel
+      const results = await Promise.all(targets.map(lang => {
+        const msg = buildTsvMessage(sourceLang, lang, type)
+          || (() => {
+            const s = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
+            const tp = type !== 'auto' ? ` (type: ${type})` : '';
+            return `Translate this content${s} to ${lang}${tp}:\\n\\n${text}`;
+          })();
+        return streamTranslation(msg, lang).then(r => ({ lang, result: r }));
+      }));
 
       stopLoadingAnim();
       loader.className = 'hx-loading';
       output.style.display = '';
-      lastRawOutput = full;
-      renderMarkdown(output, full);
+      output.innerHTML = '';
+
+      const allRaw = [];
+      results.forEach(({ lang, result }) => {
+        // Language badge header
+        const badge = document.createElement('div');
+        badge.className = 'lang-result-badge';
+        badge.textContent = lang;
+        output.appendChild(badge);
+
+        const block = document.createElement('div');
+        block.className = 'lang-result-block';
+        renderMarkdown(block, result);
+        output.appendChild(block);
+        allRaw.push(`## ${lang}\\n\\n${result}`);
+      });
+
+      lastRawOutput = allRaw.join('\\n\\n---\\n\\n');
       output.scrollTop = 0;
       document.getElementById('exportBar').className = 'export-bar visible';
-      // Auto-populate proofreader with translated text only (target column)
-      document.getElementById('proofInput').value = extractTranslatedText(full);
+
+      // Populate proofreader with all translated texts
+      const proofText = results.map(({ result }) => extractTranslatedText(result)).join('\\n\\n');
+      document.getElementById('proofInput').value = proofText;
 
     } catch (e) {
       stopLoadingAnim();
