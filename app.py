@@ -333,6 +333,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   .spinner { display: none; }
 
+  /* Export bar */
+  .export-bar {
+    display: none;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .export-bar.visible { display: flex; }
+  .export-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .export-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.06); }
+  .export-btn.success { border-color: var(--accent2); color: var(--accent2); }
+
   /* HX loading state */
   .hx-loading {
     display: none;
@@ -496,6 +518,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="output-box" id="output">
       <span class="placeholder" data-i18n="placeholder"></span>
     </div>
+    <div class="export-bar" id="exportBar">
+      <button class="export-btn" id="btnCopy" onclick="exportCopy()">📋 <span data-i18n="exportCopy"></span></button>
+      <button class="export-btn" onclick="exportMarkdown()">⬇ Markdown</button>
+      <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
+    </div>
     <div class="hx-loading" id="hxLoading">
       <svg class="hx-mark" width="72" height="64" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
         <!-- Left element: body pointing right, two prongs/tails on the left -->
@@ -649,6 +676,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       detectedLabel: 'Source detected: ',
       inputPlaceholder: 'Paste content to translate here (email, UI copy, CTA, blog…)\\n\\nClick ⟳ Detect to identify the source language before translating.',
       loadingText: 'Translating…',
+      exportCopy: 'Copy',
+      exportCopied: 'Copied!',
     },
     fr: {
       headerTitle: 'Assistant de traduction HomeExchange',
@@ -678,6 +707,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       detectedLabel: 'Source détectée : ',
       inputPlaceholder: 'Colle ici le contenu à traduire (email, UI copy, CTA, blog…)\\n\\nClique sur ⟳ Détecter pour identifier la langue source avant de traduire.',
       loadingText: 'Traduction en cours…',
+      exportCopy: 'Copier',
+      exportCopied: 'Copié !',
     }
   };
 
@@ -775,11 +806,64 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('keyGate').className = 'key-gate';
   }
 
+  let lastRawOutput = '';
+
   function clearAll() {
     document.getElementById('inputText').value = '';
     document.getElementById('output').innerHTML = `<span class="placeholder">${t('placeholder')}</span>`;
     document.getElementById('sourceLang').value = 'auto';
     document.getElementById('detectConfirm').className = 'detect-confirm hidden';
+    document.getElementById('exportBar').className = 'export-bar';
+    lastRawOutput = '';
+  }
+
+  function exportCopy() {
+    if (!lastRawOutput) return;
+    navigator.clipboard.writeText(lastRawOutput).then(() => {
+      const btn = document.getElementById('btnCopy');
+      btn.className = 'export-btn success';
+      btn.querySelector('[data-i18n]').textContent = t('exportCopied');
+      setTimeout(() => {
+        btn.className = 'export-btn';
+        btn.querySelector('[data-i18n]').textContent = t('exportCopy');
+      }, 2000);
+    });
+  }
+
+  function exportMarkdown() {
+    if (!lastRawOutput) return;
+    const blob = new Blob([lastRawOutput], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'translation.md';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportCSV() {
+    if (!lastRawOutput) return;
+    const lines = lastRawOutput.split('\\n');
+    const csvRows = [];
+    for (const line of lines) {
+      if (line.trim().startsWith('|') && !line.trim().match(/^\\|[-| :]+\\|$/)) {
+        const cells = line.split('|').slice(1, -1).map(c => {
+          const clean = c.trim().replace(/\\*\\*(.+?)\\*\\*/g, '$1');
+          return clean.includes(',') || clean.includes('"') || clean.includes('\\n')
+            ? '"' + clean.replace(/"/g, '""') + '"'
+            : clean;
+        });
+        csvRows.push(cells.join(','));
+      }
+    }
+    const content = csvRows.length ? csvRows.join('\\n') : lastRawOutput;
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'translation.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function detectLang() {
@@ -876,8 +960,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       stopLoadingAnim();
       loader.className = 'hx-loading';
       output.style.display = '';
+      lastRawOutput = full;
       renderMarkdown(output, full);
       output.scrollTop = 0;
+      document.getElementById('exportBar').className = 'export-bar visible';
 
     } catch (e) {
       stopLoadingAnim();
