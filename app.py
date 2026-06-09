@@ -587,6 +587,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   /* Make right panel scrollable to fit proofreader */
   .panel { overflow-y: auto; }
 
+  /* TSV banner */
+  .tsv-banner {
+    display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: rgba(247,168,0,0.07); border: 1px solid rgba(247,168,0,0.25);
+    border-radius: 10px; padding: 10px 14px; font-size: 13px; flex-shrink: 0;
+  }
+  .tsv-banner.visible { display: flex; }
+  .tsv-icon { font-size: 16px; flex-shrink: 0; }
+  .tsv-selectors { display: flex; gap: 12px; margin-left: auto; }
+  .tsv-selectors label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tsv-selectors select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+  .tsv-clear { background: transparent; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 2px 4px; border-radius: 4px; flex-shrink: 0; }
+  .tsv-clear:hover { color: var(--text); background: transparent; }
+
   /* Export bar */
   .export-bar {
     display: none;
@@ -766,6 +780,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       </div>
     </div>
 
+    <div class="tsv-banner" id="tsvBanner">
+      <span class="tsv-icon">📊</span>
+      <span id="tsvInfo"></span>
+      <div class="tsv-selectors">
+        <label>Source
+          <select id="tsvSource"><option value="0">Col A</option><option value="1">Col B</option></select>
+        </label>
+        <label>Context
+          <select id="tsvContext"><option value="-1">None</option><option value="1">Col B</option><option value="0">Col A</option></select>
+        </label>
+      </div>
+      <button class="tsv-clear" onclick="clearTsv()" title="Dismiss">✕</button>
+    </div>
     <textarea id="inputText" data-i18n="inputPlaceholder"></textarea>
   </div>
 
@@ -1244,6 +1271,85 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   // ────────────────────────────────────────────────────────────────
 
+  // ── TSV / Excel paste handling ──────────────────────────────────
+  let tsvData = null; // parsed rows from Excel paste
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('inputText').addEventListener('paste', handlePaste);
+  });
+
+  function handlePaste(e) {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (!text.includes('\\t')) return; // not TSV, let default paste happen
+
+    e.preventDefault();
+    const rows = text.trim().split('\\n').map(r => r.split('\\t').map(c => c.trim()));
+    const numCols = Math.max(...rows.map(r => r.length));
+    if (numCols < 2) return; // single column — let it through
+
+    tsvData = rows;
+
+    // Update source/context selectors based on number of columns
+    const srcSel = document.getElementById('tsvSource');
+    const ctxSel = document.getElementById('tsvContext');
+    srcSel.innerHTML = '';
+    ctxSel.innerHTML = '<option value="-1">None</option>';
+    for (let i = 0; i < numCols; i++) {
+      const letter = String.fromCharCode(65 + i);
+      srcSel.innerHTML += `<option value="${i}">Col ${letter}</option>`;
+      ctxSel.innerHTML += `<option value="${i}" ${i === 1 ? 'selected' : ''}>Col ${letter}</option>`;
+    }
+
+    const banner = document.getElementById('tsvBanner');
+    document.getElementById('tsvInfo').textContent =
+      `Spreadsheet detected — ${numCols} columns, ${rows.length} rows`;
+    banner.className = 'tsv-banner visible';
+
+    // Put a preview in the textarea so it's not empty
+    renderTsvPreview();
+
+    // Re-render preview when selectors change
+    srcSel.onchange = ctxSel.onchange = renderTsvPreview;
+  }
+
+  function renderTsvPreview() {
+    if (!tsvData) return;
+    const srcIdx = parseInt(document.getElementById('tsvSource').value);
+    const lines = tsvData.map((r, i) => `${i + 1}. ${r[srcIdx] || ''}`);
+    document.getElementById('inputText').value = lines.join('\\n');
+  }
+
+  function clearTsv() {
+    tsvData = null;
+    document.getElementById('tsvBanner').className = 'tsv-banner';
+    document.getElementById('inputText').value = '';
+  }
+
+  function buildTsvMessage(srcLang, tgtLang, type) {
+    if (!tsvData) return null;
+    const srcIdx = parseInt(document.getElementById('tsvSource').value);
+    const ctxIdx = parseInt(document.getElementById('tsvContext').value);
+    const hasCtx = ctxIdx >= 0 && ctxIdx !== srcIdx;
+
+    const srcInfo = srcLang !== 'auto' ? ` from ${srcLang}` : '';
+    const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
+
+    let msg = `Translate each row${srcInfo} to ${tgtLang}${typeInfo}.`;
+    if (hasCtx) msg += ` Column B is provided as reference/context — use it to stay consistent but do NOT translate it, only translate column A.`;
+    msg += `\\n\\nDeliver a single table with columns: Row | Source | Translation.\\n\\n`;
+
+    tsvData.forEach((row, i) => {
+      const src = row[srcIdx] || '';
+      const ctx = hasCtx ? row[ctxIdx] || '' : '';
+      msg += `Row ${i + 1} — Source: ${src}`;
+      if (hasCtx && ctx) msg += ` | Reference: ${ctx}`;
+      msg += '\\n';
+    });
+
+    return msg;
+  }
+  // ────────────────────────────────────────────────────────────────
+
   function extractTranslatedText(raw) {
     const lines = raw.split('\\n');
     const parts = [];
@@ -1316,6 +1422,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('sourceLang').value = 'auto';
     document.getElementById('detectConfirm').className = 'detect-confirm hidden';
     document.getElementById('exportBar').className = 'export-bar';
+    document.getElementById('tsvBanner').className = 'tsv-banner';
+    tsvData = null;
     lastRawOutput = '';
   }
 
@@ -1424,9 +1532,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     loader.className = 'hx-loading visible';
     startLoadingAnim();
 
-    const srcInfo = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
-    const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
-    const userMessage = `Translate this content${srcInfo} to ${lang}${typeInfo}:\\n\\n${text}`;
+    const tsvMsg = buildTsvMessage(sourceLang, lang, type);
+    let userMessage;
+    if (tsvMsg) {
+      userMessage = tsvMsg;
+    } else {
+      const srcInfo = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
+      const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
+      userMessage = `Translate this content${srcInfo} to ${lang}${typeInfo}:\\n\\n${text}`;
+    }
 
     try {
       const resp = await fetch('/translate', {
