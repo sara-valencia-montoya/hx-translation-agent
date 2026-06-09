@@ -156,6 +156,110 @@ Déduire le canal (UI/Product, SEO, FAQ/Zendesk, tickets/bot, Landing page, In-a
 En fin de réponse, afficher une checklist QA qui challenge la traduction : points positifs et points négatifs, à partir de toutes les règles ci-dessus.
 """
 
+PROOFREADER_PROMPT = """You are a professional proofreader specialized in HomeExchange content. Your goal is to produce a publish-ready version, fully compliant with the HomeExchange Tone of Voice and wording rules.
+
+## Identity
+
+- Scope: English (EN), French (FR), and Spanish (ES).
+- You deliver exactly two parts:
+  1. A critical review of the original style.
+  2. An improved version, ready to use.
+
+## Non-negotiable rule
+
+Never break the technical format.
+- Keep exactly as-is: HTML, tags, URLs, UTMs, variables, placeholders, tokens, and meaningful line breaks.
+- Do not translate inside variables or tokens.
+- Email variables: never change punctuation. Keep braces exactly, including the exact number of braces, quotes, and internal spaces.
+- Untouchable examples: `senderFirstName`, {{userCity}}, `{ snippet "nb_days_automatic decline" }`.
+- Forbidden: removing `{}`, changing `{{{` to `{{`, or rewriting snippet content.
+- NEVER use the em dash (—). Replace with a period, comma, colon, or rewrite the sentence.
+
+## Authoritative sources (apply in this order)
+
+1. HomeExchange Tone of Voice 2026: Real, Caring, Playful. Channel expression scale from weaker (PR, LinkedIn) to stronger (Blast, Social, SEA, Brand LPs).
+2. HomeExchange terminology glossary — apply approved terms exactly (same accents, case, spacing, punctuation).
+3. Inclusive writing guidelines (FR and ES).
+4. UX writing guidelines for product content only.
+
+## TOV by channel (apply the right level)
+
+- PR / LinkedIn: weaker brand expression. Clear, credible, real. Proof over pride.
+- Product / Transactional / Tickets / FAQ: mid. Clear + caring + reassuring. Community-first, not transactional.
+- Blast / Social / SEA / Brand LPs: stronger. Inspiring, warm, playful. Make them dream, then act.
+
+## Essential wording rules
+
+### Brand name
+- ONLY: HomeExchange. Never: HE, Homeexchange, homeExchange, Home Exchange, home exchange.
+
+### Community vocabulary
+- DO: community, exchange partners, host, guest, welcome, invite, pre-approve, finalize.
+- NEVER: clients, customers, users, book, booking, reservation, rental, rent.
+
+### GuestPoints
+- Spelling: GuestPoints exactly. "GP" only after a number if space is tight.
+- Neutral verbs only: get, obtain, receive, use, give, add, offer.
+- NEVER: earn, spend, wire, transfer, pay, credit, virtual currency.
+
+### Guarantees (legal)
+- DO: guarantees, cover, protect, protected, member support, peace of mind.
+- NEVER: insure, insurance, customer service.
+
+### Promotions
+- DO: offer, special offer, exceptional offer, gift, bonus, code.
+- NEVER: promo, promotion, promo code (except Product where context requires it).
+
+### FR specifics
+- Formal "vous". Never "Veuillez".
+- Typography: 1 space before + 1 space after double punctuation (: ; ! ? % € $).
+- Write "Échange de maisons" (with "s"). Write "de HomeExchange" / "que HomeExchange" (no apostrophe).
+- Use "adhésion" always — never "abonnement" or "s'abonner".
+- Caps: HomeExchangers, les Ambassadeurs et Ambassadrices, Reporters Instagram.
+- Inclusive: neutral formulations first, then middle dot · or doublets if unavoidable.
+
+### EN specifics
+- American English: FAVORITE, FINALIZE, VACATION, TRAVELED. Exception: Cancelling/Cancelled.
+- Use "home" not "accommodation" or "property".
+- Never say "human exchanges" (we swap homes, not people).
+- Greetings: "Dear [MemberName]" or "Dear HomeExchanger". Never "Dear member".
+- Gender-neutral terms. No "guys", "ladies and gentlemen", "hostess".
+
+### ES specifics
+- Always "tú". Neutral forms first. Inclusive plural in -os as 2nd choice. -o/-a only when unavoidable.
+- No @, x, e, or dense slashes.
+
+## Mandatory output format
+
+Always respond with exactly these two sections:
+
+### Critical review
+
+- **Style strengths**: what is already good and should be preserved.
+- **Style issues**: what feels unclear, heavy, unnatural, or off-tone.
+- **Terminology / wording issues**: any term not aligned with HomeExchange rules.
+- **Tone of voice issues**: where the text is not caring, playful, real, or sharp.
+- **Language & typography issues**: typos, punctuation, spacing, capitalization, locale rules.
+- **Inclusivity issues**: gendered wording, readability problems, or non-compliance with FR/ES guidelines.
+- **AI-like signals**: anything that sounds generated, too polished, or uses forbidden punctuation (em dash).
+
+### Improved version
+
+Provide a revised version that:
+- keeps the original meaning
+- improves flow and clarity
+- applies HomeExchange terminology
+- matches the appropriate tone of voice for the channel
+- is sharper (shorter when possible)
+- respects inclusive writing rules
+- keeps the same structure unless changing it clearly improves clarity (if you change structure, explain why in 1-3 bullets before the improved version)
+- never removes meaning, CTAs, warnings, or legal mentions
+
+If the content is Product/UI copy: act as a UX content assistant. Be an expert in microcopy: clear, inclusive, actionable, aligned with HomeExchange TOV and UX writing guidelines.
+
+If something is ambiguous (channel, audience, intent): state your best assumption and proceed. Do not ask for clarification unless absolutely necessary.
+"""
+
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -332,6 +436,37 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     color: #f9c080;
   }
   .spinner { display: none; }
+
+  /* Proofreader section */
+  .proof-section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .proof-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; cursor: pointer; user-select: none;
+    transition: background 0.15s;
+  }
+  .proof-header:hover { background: rgba(247,168,0,0.04); }
+  .proof-title { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; }
+  .proof-toggle { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
+  .proof-toggle.open { transform: rotate(90deg); }
+  .proof-body { display: none; flex-direction: column; gap: 12px; padding: 0 16px 16px; }
+  .proof-body.open { display: flex; }
+  .proof-body textarea {
+    min-height: 120px; max-height: 240px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 14px; line-height: 1.6; padding: 14px;
+    resize: vertical; outline: none; font-family: inherit;
+  }
+  .proof-body textarea:focus { border-color: rgba(247,168,0,0.4); }
+  .proof-controls { display: flex; gap: 10px; align-items: center; }
+
+  /* Make right panel scrollable to fit proofreader */
+  .panel { overflow-y: auto; }
 
   /* Export bar */
   .export-bar {
@@ -525,6 +660,34 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <button class="export-btn" onclick="exportMarkdown()">⬇ Markdown</button>
       <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
     </div>
+    <!-- Proofreader section -->
+    <div class="proof-section" id="proofSection">
+      <div class="proof-header" onclick="toggleProofreader()">
+        <span class="proof-title" data-i18n="proofTitle"></span>
+        <span class="proof-toggle" id="proofToggle">▸</span>
+      </div>
+      <div class="proof-body" id="proofBody">
+        <textarea id="proofInput" data-i18n-placeholder="proofPlaceholder"></textarea>
+        <div class="proof-controls">
+          <button onclick="runProofread()" id="btnProofread" data-i18n="btnProofread"></button>
+          <button class="clear" onclick="clearProofread()" data-i18n="btnClear"></button>
+        </div>
+        <div class="hx-loading" id="hxProofLoading">
+          <svg class="hx-mark" id="proofMark" width="56" height="50" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 54,50 C 50,40 40,28 22,14 C 17,19 22,24 30,31 C 38,38 46,44 49,50 C 46,56 38,62 30,69 C 22,76 17,81 22,86 C 40,72 50,60 54,50 Z" fill="#F7A800"/>
+            <path d="M 66,50 C 70,40 80,28 98,14 C 103,19 98,24 90,31 C 82,38 74,44 71,50 C 74,56 82,62 90,69 C 98,76 103,81 98,86 C 80,72 70,60 66,50 Z" fill="#F7A800"/>
+          </svg>
+          <span class="hx-loading-text" id="proofLoadingText"></span>
+        </div>
+        <div class="output-box" id="proofOutput" style="display:none"></div>
+        <div class="export-bar" id="proofExportBar">
+          <button class="export-btn" id="btnProofCopy" onclick="exportProofCopy()">📋 <span data-i18n="exportCopy"></span></button>
+          <button class="export-btn" onclick="exportProofMarkdown()">⬇ Markdown</button>
+          <button class="export-btn" onclick="exportProofCSV()">⬇ CSV</button>
+        </div>
+      </div>
+    </div>
+
     <div class="hx-loading" id="hxLoading">
       <svg class="hx-mark" width="72" height="64" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
         <!-- Left element: body pointing right, two prongs/tails on the left -->
@@ -682,6 +845,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       exportCopied: 'Copied!',
       btnImport: '📂 Import',
       importError: 'Unsupported file. Use .md or .csv',
+      proofTitle: 'Proofreader',
+      proofPlaceholder: 'Paste or edit the text to proofread here…',
+      btnProofread: '✦ Proofread',
+      proofLoadingText: 'Reviewing…',
     },
     fr: {
       headerTitle: 'Assistant de traduction HomeExchange',
@@ -715,6 +882,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       exportCopied: 'Copié !',
       btnImport: '📂 Importer',
       importError: 'Fichier non supporté. Utilise .md ou .csv',
+      proofTitle: 'Proofreader',
+      proofPlaceholder: 'Colle ou édite ici le texte à relire…',
+      btnProofread: '✦ Relire',
+      proofLoadingText: 'Relecture en cours…',
     }
   };
 
@@ -735,6 +906,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (el.tagName === 'OPTION') el.textContent = val;
       else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
       else el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      el.placeholder = t(el.dataset.i18nPlaceholder);
     });
     document.getElementById('headerTitle').textContent = t('headerTitle');
     // Update placeholder in output if untouched
@@ -813,6 +987,142 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   let lastRawOutput = '';
+
+  // ── Proofreader ────────────────────────────────────────────────
+  let lastProofOutput = '';
+  let _proofRAF = null, _proofWordTimer = null, _proofDirTimer = null;
+
+  function toggleProofreader() {
+    const body   = document.getElementById('proofBody');
+    const toggle = document.getElementById('proofToggle');
+    const open   = body.classList.toggle('open');
+    toggle.className = 'proof-toggle' + (open ? ' open' : '');
+  }
+
+  function clearProofread() {
+    document.getElementById('proofInput').value = '';
+    document.getElementById('proofOutput').style.display = 'none';
+    document.getElementById('proofOutput').innerHTML = '';
+    document.getElementById('proofExportBar').className = 'export-bar';
+    lastProofOutput = '';
+  }
+
+  function startProofAnim() {
+    const mark = document.getElementById('proofMark');
+    const txt  = document.getElementById('proofLoadingText');
+    txt.textContent = t('proofLoadingText');
+    let angle = 0, speed = 2.5;
+    const flip = () => {
+      speed = (Math.random() > 0.5 ? 1 : -1) * (1.8 + Math.random() * 3.5);
+      _proofDirTimer = setTimeout(flip, 500 + Math.random() * 900);
+    };
+    flip();
+    const tick = () => {
+      angle += speed;
+      mark.style.transform = 'rotate(' + angle + 'deg)';
+      _proofRAF = requestAnimationFrame(tick);
+    };
+    _proofRAF = requestAnimationFrame(tick);
+  }
+
+  function stopProofAnim() {
+    clearTimeout(_proofDirTimer);
+    cancelAnimationFrame(_proofRAF);
+    const mark = document.getElementById('proofMark');
+    if (mark) mark.style.transform = '';
+  }
+
+  async function runProofread() {
+    if (!activeKey) { changeKey(); return; }
+    const text = document.getElementById('proofInput').value.trim();
+    if (!text) { alert(t('alertNoText')); return; }
+
+    const loader = document.getElementById('hxProofLoading');
+    const output = document.getElementById('proofOutput');
+    const btn    = document.getElementById('btnProofread');
+
+    btn.disabled = true;
+    output.style.display = 'none';
+    loader.className = 'hx-loading visible';
+    document.getElementById('proofExportBar').className = 'export-bar';
+    startProofAnim();
+
+    try {
+      const resp = await fetch('/proofread', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, api_key: activeKey })
+      });
+      if (!resp.ok) {
+        const err = await resp.json();
+        output.textContent = 'Error: ' + (err.detail || resp.statusText);
+        return;
+      }
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let full = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of decoder.decode(value, { stream: true }).split('\\n')) {
+          if (line.startsWith('data: ')) {
+            try { const d = JSON.parse(line.slice(6)); if (d.text) full += d.text; } catch {}
+          }
+        }
+      }
+      stopProofAnim();
+      loader.className = 'hx-loading';
+      output.style.display = '';
+      lastProofOutput = full;
+      renderMarkdown(output, full);
+      output.scrollTop = 0;
+      document.getElementById('proofExportBar').className = 'export-bar visible';
+    } catch (e) {
+      stopProofAnim();
+      loader.className = 'hx-loading';
+      output.style.display = '';
+      output.textContent = 'Network error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function exportProofCopy() {
+    if (!lastProofOutput) return;
+    navigator.clipboard.writeText(lastProofOutput).then(() => {
+      const btn = document.getElementById('btnProofCopy');
+      btn.className = 'export-btn success';
+      btn.querySelector('[data-i18n]').textContent = t('exportCopied');
+      setTimeout(() => {
+        btn.className = 'export-btn';
+        btn.querySelector('[data-i18n]').textContent = t('exportCopy');
+      }, 2000);
+    });
+  }
+
+  function exportProofMarkdown() {
+    if (!lastProofOutput) return;
+    const blob = new Blob([lastProofOutput], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'proofread.md'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportProofCSV() {
+    if (!lastProofOutput) return;
+    const lines = lastProofOutput.split('\\n');
+    const rows = lines.filter(l => l.trim().startsWith('|') && !l.trim().match(/^\\|[-| :]+\\|$/))
+      .map(l => l.split('|').slice(1,-1).map(c => {
+        const clean = c.trim().replace(/\\*\\*(.+?)\\*\\*/g, '$1');
+        return clean.includes(',') || clean.includes('"') ? '"' + clean.replace(/"/g,'""') + '"' : clean;
+      }).join(','));
+    const content = rows.length ? rows.join('\\n') : lastProofOutput;
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'proofread.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  // ────────────────────────────────────────────────────────────────
 
   function importFile(event) {
     const file = event.target.files[0];
@@ -1008,6 +1318,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       renderMarkdown(output, full);
       output.scrollTop = 0;
       document.getElementById('exportBar').className = 'export-bar visible';
+      // Auto-populate proofreader textarea
+      document.getElementById('proofInput').value = full;
 
     } catch (e) {
       stopLoadingAnim();
@@ -1127,6 +1439,33 @@ def index():
 @app.get("/config")
 def config():
     return {"has_company_key": bool(COMPANY_KEY)}
+
+
+@app.post("/proofread")
+def proofread(req: TranslateRequest):
+    from fastapi import HTTPException
+    if req.api_key == "__company__":
+        if not COMPANY_KEY:
+            raise HTTPException(status_code=403, detail="No company key configured.")
+        key = COMPANY_KEY
+    else:
+        if not req.api_key or not req.api_key.startswith("sk-"):
+            raise HTTPException(status_code=400, detail="Invalid API key.")
+        key = req.api_key
+
+    client = anthropic.Anthropic(api_key=key)
+
+    def stream():
+        with client.messages.stream(
+            model="claude-sonnet-4-6",
+            max_tokens=8096,
+            system=PROOFREADER_PROMPT,
+            messages=[{"role": "user", "content": req.text}],
+        ) as s:
+            for text in s.text_stream:
+                yield f"data: {json.dumps({'text': text})}\n\n"
+
+    return StreamingResponse(stream(), media_type="text/event-stream")
 
 
 @app.post("/detect")
