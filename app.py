@@ -845,6 +845,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <span class="proof-toggle" id="proofToggle">▸</span>
       </div>
       <div class="proof-body" id="proofBody">
+        <div class="result-tabs" id="proofTabs" style="display:none"></div>
         <textarea id="proofInput" data-i18n-placeholder="proofPlaceholder"></textarea>
         <div class="proof-controls">
           <button onclick="runProofread()" id="btnProofread" data-i18n="btnProofread"></button>
@@ -1171,6 +1172,49 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   // ── Proofreader ────────────────────────────────────────────────
   let lastProofOutput = '';
   let _proofRAF = null, _proofWordTimer = null, _proofDirTimer = null;
+  let proofLangs = []; // [{lang, text}] when multi-language
+
+  function buildProofTabs(results) {
+    const tabBar  = document.getElementById('proofTabs');
+    const textarea = document.getElementById('proofInput');
+    proofLangs = results.map(({ lang, result }) => ({
+      lang, text: extractTranslatedText(result)
+    }));
+
+    if (proofLangs.length <= 1) {
+      // Single language — use plain textarea, no tabs
+      tabBar.style.display = 'none';
+      textarea.style.display = '';
+      textarea.value = proofLangs[0]?.text || '';
+      return;
+    }
+
+    // Multiple languages — build tabs
+    tabBar.style.display = 'flex';
+    tabBar.innerHTML = '';
+    textarea.value = proofLangs[0].text;
+
+    proofLangs.forEach(({ lang, text }, i) => {
+      const tab = document.createElement('button');
+      tab.className = 'result-tab' + (i === 0 ? ' active' : '');
+      tab.textContent = lang;
+      tab.onclick = () => {
+        tabBar.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        textarea.value = text;
+        // Clear previous result when switching tab
+        document.getElementById('proofOutput').style.display = 'none';
+        document.getElementById('proofExportBar').className = 'export-bar';
+        lastProofOutput = '';
+      };
+      tabBar.appendChild(tab);
+    });
+  }
+
+  function getActiveProofLang() {
+    const active = document.querySelector('#proofTabs .result-tab.active');
+    return active ? active.textContent : null;
+  }
 
   function toggleProofreader() {
     const body   = document.getElementById('proofBody');
@@ -1184,6 +1228,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('proofOutput').style.display = 'none';
     document.getElementById('proofOutput').innerHTML = '';
     document.getElementById('proofExportBar').className = 'export-bar';
+    document.getElementById('proofTabs').style.display = 'none';
+    document.getElementById('proofTabs').innerHTML = '';
+    document.getElementById('proofInput').style.display = '';
+    proofLangs = [];
     lastProofOutput = '';
   }
 
@@ -1671,9 +1719,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       output.scrollTop = 0;
       document.getElementById('exportBar').className = 'export-bar visible';
 
-      // Populate proofreader with all translated texts
-      const proofText = results.map(({ result }) => extractTranslatedText(result)).join('\\n\\n');
-      document.getElementById('proofInput').value = proofText;
+      // Populate proofreader tabs — one per language
+      buildProofTabs(results);
 
     } catch (e) {
       stopLoadingAnim();
