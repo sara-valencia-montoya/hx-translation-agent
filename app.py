@@ -169,7 +169,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     --border: #2a2d3a;
     --text: #e8edf3;
     --muted: #8b97a8;
-    --accent: #6dc4ff;
+    --accent: #F7A800;
+    --accent-hover: #ffc53d;
     --accent2: #7eedc0;
     --danger: #f87171;
     --radius: 12px;
@@ -187,9 +188,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     background: var(--bg-card);
     flex-shrink: 0;
   }
-  .logo { font-size: 18px; font-weight: 700; color: var(--text); }
-  .logo span { color: var(--accent); }
-  .badge { font-size: 12px; background: rgba(109,196,255,0.12); color: var(--accent); border: 1px solid rgba(109,196,255,0.25); border-radius: 100px; padding: 3px 10px; }
+  .logo { font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .logo strong { color: var(--accent); }
+  .badge { font-size: 12px; background: rgba(247,168,0,0.12); color: var(--accent); border: 1px solid rgba(247,168,0,0.25); border-radius: 100px; padding: 3px 10px; }
 
   main {
     display: flex;
@@ -281,17 +282,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   button {
     background: var(--accent);
-    color: #0f1117;
+    color: #1a1200;
     border: none;
-    border-radius: 8px;
+    border-radius: 100px;
     font-size: 14px;
     font-weight: 700;
     padding: 10px 24px;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: background 0.15s, transform 0.1s;
     white-space: nowrap;
   }
-  button:hover { opacity: 0.88; }
+  button:hover { background: var(--accent-hover); }
+  button:active { transform: scale(0.97); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button.clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; }
   button.clear:hover { opacity: 1; border-color: var(--text); color: var(--text); }
@@ -314,7 +316,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     transition: all 0.15s;
     white-space: nowrap;
   }
-  .detect-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .detect-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.06); }
   .detect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .controls-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
   .detect-confirm {
@@ -329,17 +331,36 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     border-color: rgba(249,192,128,0.3);
     color: #f9c080;
   }
-  .spinner {
+  .spinner { display: none; }
+
+  /* HX loading state */
+  .hx-loading {
     display: none;
-    width: 16px; height: 16px;
-    border: 2px solid rgba(109,196,255,0.2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    height: 100%;
+    min-height: 200px;
   }
-  .spinner.visible { display: block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .hx-loading.visible { display: flex; }
+  .hx-logo-anim {
+    animation: hx-breathe 1.6s ease-in-out infinite;
+  }
+  .hx-loading-text {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    animation: hx-fade 1.6s ease-in-out infinite;
+  }
+  @keyframes hx-breathe {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(1.12) rotate(30deg); opacity: 0.75; }
+  }
+  @keyframes hx-fade {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
 
   /* Key gate overlay */
   .key-gate {
@@ -404,14 +425,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 5px; cursor: pointer;
     transition: all 0.15s;
   }
-  .ui-lang-btn.active { background: var(--accent); color: #0f1117; }
+  .ui-lang-btn.active { background: var(--accent); color: #1a1200; }
   .ui-lang-btn:hover:not(.active) { color: var(--text); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">HX <span>Translate</span></div>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 40 40" style="flex-shrink:0">
+      <g transform="translate(20,20)" stroke="#F7A800" stroke-width="4" stroke-linecap="round">
+        <line x1="0" y1="-15" x2="0" y2="15"/>
+        <line x1="-13" y1="-7.5" x2="13" y2="7.5"/>
+        <line x1="-13" y1="7.5" x2="13" y2="-7.5"/>
+      </g>
+    </svg>
+    <span>home<strong>exchange</strong> <span style="color:var(--muted);font-weight:400">translate</span></span>
+  </div>
   <div class="badge">EN · FR · ES</div>
   <span id="headerTitle" style="margin-left:auto;font-size:13px;color:var(--muted)"></span>
   <div class="ui-lang-toggle">
@@ -481,6 +511,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="output-box" id="output">
       <span class="placeholder" data-i18n="placeholder"></span>
     </div>
+    <div class="hx-loading" id="hxLoading">
+      <svg width="56" height="56" viewBox="0 0 40 40" class="hx-logo-anim">
+        <g transform="translate(20,20)" stroke="#F7A800" stroke-width="4" stroke-linecap="round">
+          <line x1="0" y1="-15" x2="0" y2="15"/>
+          <line x1="-13" y1="-7.5" x2="13" y2="7.5"/>
+          <line x1="-13" y1="7.5" x2="13" y2="-7.5"/>
+        </g>
+      </svg>
+      <span class="hx-loading-text" data-i18n="loadingText"></span>
+    </div>
   </div>
   <!-- Key gate modal -->
   <div class="key-gate" id="keyGate">
@@ -548,6 +588,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectError: 'Detection error: ',
       detectedLabel: 'Source detected: ',
       inputPlaceholder: 'Paste content to translate here (email, UI copy, CTA, blog…)\\n\\nClick ⟳ Detect to identify the source language before translating.',
+      loadingText: 'Translating…',
     },
     fr: {
       headerTitle: 'Assistant de traduction HomeExchange',
@@ -576,6 +617,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       alertDetectError: 'Erreur de détection : ',
       detectedLabel: 'Source détectée : ',
       inputPlaceholder: 'Colle ici le contenu à traduire (email, UI copy, CTA, blog…)\\n\\nClique sur ⟳ Détecter pour identifier la langue source avant de traduire.',
+      loadingText: 'Traduction en cours…',
     }
   };
 
@@ -729,10 +771,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const spinner = document.getElementById('spinner');
     const output = document.getElementById('output');
 
+    const loader = document.getElementById('hxLoading');
+
     btn.disabled = true;
-    spinner.className = 'spinner visible';
-    output.className = 'output-box streaming';
-    output.textContent = '';
+    output.style.display = 'none';
+    loader.className = 'hx-loading visible';
 
     const srcInfo = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
     const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
@@ -747,7 +790,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       if (!resp.ok) {
         const err = await resp.json();
-        output.textContent = 'Erreur : ' + (err.detail || resp.statusText);
+        output.textContent = 'Error: ' + (err.detail || resp.statusText);
         return;
       }
 
@@ -763,25 +806,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              if (data.text) {
-                full += data.text;
-                output.textContent = full;
-                output.scrollTop = output.scrollHeight;
-              }
+              if (data.text) full += data.text;
             } catch {}
           }
         }
       }
 
-      // Basic markdown rendering for tables
+      loader.className = 'hx-loading';
+      output.style.display = '';
       renderMarkdown(output, full);
+      output.scrollTop = 0;
 
     } catch (e) {
-      output.textContent = 'Erreur réseau : ' + e.message;
+      loader.className = 'hx-loading';
+      output.style.display = '';
+      output.textContent = 'Network error: ' + e.message;
     } finally {
       btn.disabled = false;
-      spinner.className = 'spinner';
-      output.className = 'output-box';
     }
   }
 
