@@ -344,30 +344,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     min-height: 200px;
   }
   .hx-loading.visible { display: flex; }
-  .hx-mark {
-    animation: hx-jump 1.1s cubic-bezier(.36,.07,.19,.97) infinite;
-    transform-origin: center bottom;
-  }
+  .hx-mark { transform-origin: center center; display: block; }
   .hx-loading-text {
     color: var(--muted);
     font-size: 13px;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    animation: hx-fade 1.1s ease-in-out infinite;
-  }
-  @keyframes hx-jump {
-    0%   { transform: translateY(0)    rotate(0deg)   scaleX(1)    scaleY(1); }
-    18%  { transform: translateY(-28px) rotate(-12deg) scaleX(0.92) scaleY(1.08); }
-    36%  { transform: translateY(-32px) rotate(14deg)  scaleX(1.06) scaleY(0.94); }
-    52%  { transform: translateY(-14px) rotate(-8deg)  scaleX(0.97) scaleY(1.03); }
-    68%  { transform: translateY(6px)   rotate(5deg)   scaleX(1.08) scaleY(0.88); }
-    80%  { transform: translateY(-8px)  rotate(-4deg)  scaleX(0.96) scaleY(1.04); }
-    90%  { transform: translateY(2px)   rotate(2deg)   scaleX(1.02) scaleY(0.98); }
-    100% { transform: translateY(0)    rotate(0deg)   scaleX(1)    scaleY(1); }
-  }
-  @keyframes hx-fade {
-    0%, 100% { opacity: 0.4; }
-    50%      { opacity: 1; }
+    min-height: 20px;
+    transition: opacity 0.3s;
   }
 
   /* Key gate overlay */
@@ -575,6 +559,66 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let activeKey = '';
   let hasCompanyKey = false;
   let uiLang = localStorage.getItem('hx_ui_lang') || 'en';
+
+  const TRAVEL_WORDS = {
+    en: ['Navigating…', 'Wandering…', 'Exploring…', 'Discovering…', 'Roaming…',
+         'Exchanging…', 'Globe-trotting…', 'Packing bags…', 'Finding home…',
+         'Unlocking doors…', 'Setting sails…', 'Taking off…', 'Crossing borders…',
+         'Mapping routes…', 'Jet-setting…', 'Adventuring…', 'Checking in…',
+         'Landing soon…', 'Swapping homes…', 'On the road…'],
+    fr:  ['En route…', 'On explore…', 'On decouvre…', 'On navigue…', 'On voyage…',
+          'On decolle…', "On s'aventure…", "On s'echange…", 'Aux quatre coins…',
+          'Cap sur le monde…', "On leve l'ancre…", 'En partance…', "On s'envole…",
+          'On trace la route…', 'Bon voyage…', 'En transit…', 'On largue les amarres…',
+          'Destination monde…', "A l'horizon…", 'Escale en cours…'],
+  };
+
+  let _loadingRAF = null;
+  let _loadingWordTimer = null;
+  let _loadingDirTimer = null;
+
+  function startLoadingAnim() {
+    const mark = document.querySelector('.hx-mark');
+    const txt  = document.querySelector('#hxLoading .hx-loading-text');
+    const words = TRAVEL_WORDS[uiLang] || TRAVEL_WORDS.en;
+
+    // Random word cycling
+    const nextWord = () => {
+      txt.style.opacity = '0';
+      setTimeout(() => {
+        txt.textContent = words[Math.floor(Math.random() * words.length)];
+        txt.style.opacity = '1';
+      }, 300);
+    };
+    nextWord();
+    _loadingWordTimer = setInterval(nextWord, 2000);
+
+    // Random rotation with direction flips
+    let angle = 0;
+    let speed = 2.5;
+
+    const flipDir = () => {
+      const dir  = Math.random() > 0.5 ? 1 : -1;
+      speed = dir * (1.8 + Math.random() * 3.5);
+      _loadingDirTimer = setTimeout(flipDir, 500 + Math.random() * 900);
+    };
+    flipDir();
+
+    const tick = () => {
+      angle += speed;
+      mark.style.transform = 'rotate(' + angle + 'deg)';
+      _loadingRAF = requestAnimationFrame(tick);
+    };
+    _loadingRAF = requestAnimationFrame(tick);
+  }
+
+  function stopLoadingAnim() {
+    clearInterval(_loadingWordTimer);
+    clearTimeout(_loadingDirTimer);
+    cancelAnimationFrame(_loadingRAF);
+    const mark = document.querySelector('.hx-mark');
+    if (mark) mark.style.transform = '';
+  }
 
   const I18N = {
     en: {
@@ -792,6 +836,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     btn.disabled = true;
     output.style.display = 'none';
     loader.className = 'hx-loading visible';
+    startLoadingAnim();
 
     const srcInfo = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
     const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
@@ -828,12 +873,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }
       }
 
+      stopLoadingAnim();
       loader.className = 'hx-loading';
       output.style.display = '';
       renderMarkdown(output, full);
       output.scrollTop = 0;
 
     } catch (e) {
+      stopLoadingAnim();
       loader.className = 'hx-loading';
       output.style.display = '';
       output.textContent = 'Network error: ' + e.message;
