@@ -1579,16 +1579,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     startLoadingAnim();
 
     try {
-      // Build one message per target language and run all in parallel
-      const results = await Promise.all(targets.map(lang => {
+      // Run translations sequentially — more reliable with streaming + Render free tier
+      const results = [];
+      for (const lang of targets) {
         const msg = buildTsvMessage(sourceLang, lang, type)
           || (() => {
             const s = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
             const tp = type !== 'auto' ? ` (type: ${type})` : '';
             return `Translate this content${s} to ${lang}${tp}:\\n\\n${text}`;
           })();
-        return streamTranslation(msg, lang).then(r => ({ lang, result: r }));
-      }));
+
+        // Update loading text to show progress
+        const loadingTxt = document.querySelector('#hxLoading .hx-loading-text');
+        if (loadingTxt) loadingTxt.textContent = `${lang}… (${results.length + 1}/${targets.length})`;
+
+        try {
+          const result = await streamTranslation(msg, lang);
+          results.push({ lang, result });
+        } catch(e) {
+          results.push({ lang, result: `Translation error: ${e.message}` });
+        }
+      }
 
       stopLoadingAnim();
       loader.className = 'hx-loading';
