@@ -153,7 +153,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assistant de traduction — HomeExchange</title>
+<title>Translation Assistant — HomeExchange</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -281,6 +281,39 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   button.clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; }
   button.clear:hover { opacity: 1; border-color: var(--text); color: var(--text); }
 
+  .lang-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .lang-group { display: flex; align-items: center; gap: 6px; }
+  .lang-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .lang-arrow { color: var(--accent); font-size: 18px; font-weight: 700; padding: 0 2px; }
+  .detect-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .detect-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .detect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .controls-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .detect-confirm {
+    font-size: 13px; padding: 5px 12px;
+    background: rgba(126,237,192,0.08);
+    border: 1px solid rgba(126,237,192,0.25);
+    border-radius: 6px; color: var(--accent2);
+  }
+  .detect-confirm.hidden { display: none; }
+  .detect-confirm.changed {
+    background: rgba(249,192,128,0.08);
+    border-color: rgba(249,192,128,0.3);
+    color: #f9c080;
+  }
   .spinner {
     display: none;
     width: 16px; height: 16px;
@@ -354,75 +387,95 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <header>
   <div class="logo">HX <span>Translate</span></div>
   <div class="badge">EN · FR · ES</div>
+  <span style="margin-left:auto;font-size:13px;color:var(--muted)">HomeExchange Translation Assistant</span>
 </header>
 
 <main>
   <!-- Left panel: input -->
   <div class="panel">
-    <div class="panel-label">Contenu à traduire</div>
+    <div class="panel-label">Content to translate</div>
 
     <div id="keyStatus" class="key-status" style="display:none">
       <span class="key-dot"></span>
       <span id="keyStatusText"></span>
-      <button onclick="changeKey()" style="margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);font-weight:500;padding:4px 10px;font-size:12px;">Changer</button>
+      <button onclick="changeKey()" style="margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);font-weight:500;padding:4px 10px;font-size:12px;">Change</button>
     </div>
 
     <div class="controls">
-      <select id="targetLang">
-        <option value="FR">→ Français</option>
-        <option value="EN">→ English</option>
-        <option value="ES">→ Español</option>
-      </select>
-      <select id="contentType">
-        <option value="auto">Type auto-détecté</option>
-        <option value="blast">Email blast</option>
-        <option value="transactionnel">Email transactionnel</option>
-        <option value="blog">Blog</option>
-        <option value="autre">Autre contenu</option>
-      </select>
-      <div class="spinner" id="spinner"></div>
-      <button onclick="runTranslate()" id="btnTranslate">Traduire</button>
-      <button class="clear" onclick="clearAll()">Effacer</button>
+      <div class="lang-row">
+        <div class="lang-group">
+          <label class="lang-label">Source</label>
+          <select id="sourceLang">
+            <option value="auto">Auto</option>
+            <option value="EN">EN</option>
+            <option value="FR">FR</option>
+            <option value="ES">ES</option>
+          </select>
+          <button class="detect-btn" id="btnDetect" onclick="detectLang()" title="Détecter la langue source">⟳ Détecter</button>
+        </div>
+        <span class="lang-arrow">→</span>
+        <div class="lang-group">
+          <label class="lang-label">Cible</label>
+          <select id="targetLang">
+            <option value="FR">FR</option>
+            <option value="EN">EN</option>
+            <option value="ES">ES</option>
+          </select>
+        </div>
+        <select id="contentType" style="margin-left:8px">
+          <option value="auto">Type: auto</option>
+          <option value="blast">Email blast</option>
+          <option value="transactionnel">Email transactional</option>
+          <option value="blog">Blog</option>
+          <option value="autre">Other content</option>
+        </select>
+      </div>
+      <div class="controls-actions">
+        <div id="detectConfirm" class="detect-confirm hidden"></div>
+        <div class="spinner" id="spinner"></div>
+        <button onclick="runTranslate()" id="btnTranslate">Translate</button>
+        <button class="clear" onclick="clearAll()">Clear</button>
+      </div>
     </div>
 
-    <textarea id="inputText" placeholder="Colle ici le contenu à traduire (email, UI copy, CTA, blog…)&#10;&#10;L'agent détecte automatiquement la langue source et applique les règles HomeExchange (glossaire, TOV, variables, inclusif)."></textarea>
+    <textarea id="inputText" placeholder="Colle ici le contenu à traduire (email, UI copy, CTA, blog…)&#10;&#10;Clique sur ⟳ Détecter pour identifier la langue source avant de traduire."></textarea>
   </div>
 
   <!-- Right panel: output -->
   <div class="panel">
-    <div class="panel-label">Traduction</div>
+    <div class="panel-label">Translation</div>
     <div class="output-box" id="output">
-      <span class="placeholder">La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.</span>
+      <span class="placeholder">The translation will appear here with the source / target table and QA checklist.</span>
     </div>
   </div>
   <!-- Key gate modal -->
   <div class="key-gate" id="keyGate">
     <div class="key-card">
       <div>
-        <h2>Clé API requise</h2>
-        <p>Choisis comment tu veux utiliser l'assistant de traduction HomeExchange.</p>
+        <h2>API key required</h2>
+        <p>Choose how you want to use the HomeExchange translation assistant.</p>
       </div>
 
       <div id="optionCompany" class="key-option" style="display:none" onclick="selectMode('company')">
         <input type="radio" name="keyMode" id="radioCompany" value="company"/>
         <div class="key-option-body">
-          <div class="key-option-title">Utiliser la clé HomeExchange</div>
-          <div class="key-option-desc">Clé partagée configurée par l'équipe. Aucune clé personnelle requise.</div>
+          <div class="key-option-title">Use HomeExchange shared key</div>
+          <div class="key-option-desc">Team key configured by the company. No personal key required.</div>
         </div>
       </div>
 
       <div class="key-option" id="optionOwn" onclick="selectMode('own')">
         <input type="radio" name="keyMode" id="radioOwn" value="own"/>
         <div class="key-option-body">
-          <div class="key-option-title">Utiliser ma propre clé Anthropic</div>
-          <div class="key-option-desc">Entre ta clé personnelle (sk-ant-…). Elle est stockée uniquement dans ton navigateur.</div>
+          <div class="key-option-title">Use my own Anthropic key</div>
+          <div class="key-option-desc">Enter your personal key (sk-ant-…). Stored only in your browser.</div>
           <div class="key-input-wrap" id="ownKeyWrap">
             <input type="password" id="ownKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" onclick="event.stopPropagation()"/>
           </div>
         </div>
       </div>
 
-      <button class="key-confirm" id="keyConfirmBtn" onclick="confirmKey()" disabled>Continuer</button>
+      <button class="key-confirm" id="keyConfirmBtn" onclick="confirmKey()" disabled>Continue</button>
     </div>
   </div>
 
@@ -475,7 +528,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (mode === 'company') {
       activeKey = '__company__';
       localStorage.setItem('hx_key_mode', 'company');
-      showStatus('Clé HomeExchange active', false);
+      showStatus('HomeExchange key active', false);
     } else {
       const val = document.getElementById('ownKeyInput').value.trim();
       if (!val.startsWith('sk-')) {
@@ -485,7 +538,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       activeKey = val;
       localStorage.setItem('hx_key_mode', 'own');
       localStorage.setItem('hx_own_key', val);
-      showStatus('Clé personnelle active', false);
+      showStatus('Personal key active', false);
     }
 
     document.getElementById('keyGate').className = 'key-gate hidden';
@@ -504,7 +557,43 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function clearAll() {
     document.getElementById('inputText').value = '';
-    document.getElementById('output').innerHTML = '<span class="placeholder">La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.</span>';
+    document.getElementById('output').innerHTML = '<span class="placeholder">The translation will appear here with the source / target table and QA checklist.</span>';
+    document.getElementById('sourceLang').value = 'auto';
+    document.getElementById('detectConfirm').className = 'detect-confirm hidden';
+  }
+
+  async function detectLang() {
+    if (!activeKey) { changeKey(); return; }
+    const text = document.getElementById('inputText').value.trim();
+    if (!text) { alert('Paste some content first.'); return; }
+
+    const btn = document.getElementById('btnDetect');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+      const res = await fetch('/detect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, api_key: activeKey })
+      });
+      const data = await res.json();
+      const detected = data.lang;
+
+      const select = document.getElementById('sourceLang');
+      const prev = select.value;
+      select.value = detected;
+
+      const confirm = document.getElementById('detectConfirm');
+      const labels = { EN: 'English', FR: 'Français', ES: 'Español' };
+      confirm.textContent = `Source detected: ${labels[detected] || detected}`;
+      confirm.className = 'detect-confirm' + (prev !== 'auto' && prev !== detected ? ' changed' : '');
+    } catch(e) {
+      alert('Detection error: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⟳ Detect';
+    }
   }
 
   async function runTranslate() {
@@ -512,8 +601,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const key = activeKey;
 
     const text = document.getElementById('inputText').value.trim();
-    if (!text) { alert('Colle un contenu à traduire.'); return; }
+    if (!text) { alert('Paste content to translate.'); return; }
 
+    const sourceLang = document.getElementById('sourceLang').value;
     const lang = document.getElementById('targetLang').value;
     const type = document.getElementById('contentType').value;
 
@@ -526,9 +616,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     output.className = 'output-box streaming';
     output.textContent = '';
 
-    const userMessage = type === 'auto'
-      ? `Traduis ce contenu en ${lang} :\\n\\n${text}`
-      : `Traduis ce contenu en ${lang} (type : ${type}) :\\n\\n${text}`;
+    const srcInfo = sourceLang !== 'auto' ? ` from ${sourceLang}` : '';
+    const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
+    const userMessage = `Translate this content${srcInfo} to ${lang}${typeInfo}:\\n\\n${text}`;
 
     try {
       const resp = await fetch('/translate', {
@@ -638,6 +728,10 @@ class TranslateRequest(BaseModel):
     text: str
     api_key: str  # "__company__" to use server-side key
 
+class DetectRequest(BaseModel):
+    text: str
+    api_key: str
+
 
 @app.get("/", response_class=HTMLResponse)
 def index():
@@ -647,6 +741,32 @@ def index():
 @app.get("/config")
 def config():
     return {"has_company_key": bool(COMPANY_KEY)}
+
+
+@app.post("/detect")
+def detect(req: DetectRequest):
+    from fastapi import HTTPException
+    if req.api_key == "__company__":
+        if not COMPANY_KEY:
+            raise HTTPException(status_code=403, detail="Aucune clé entreprise configurée.")
+        key = COMPANY_KEY
+    else:
+        if not req.api_key or not req.api_key.startswith("sk-"):
+            raise HTTPException(status_code=400, detail="Clé API invalide.")
+        key = req.api_key
+
+    client = anthropic.Anthropic(api_key=key)
+    snippet = req.text[:400]
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=10,
+        system="Detect the language of the text. Reply with only the language code: EN, FR, or ES. Nothing else.",
+        messages=[{"role": "user", "content": snippet}],
+    )
+    lang = msg.content[0].text.strip().upper()
+    if lang not in ("EN", "FR", "ES"):
+        lang = "EN"
+    return {"lang": lang}
 
 
 @app.post("/translate")
