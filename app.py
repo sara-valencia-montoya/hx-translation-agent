@@ -689,7 +689,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <div class="hx-loading" id="hxLoading">
-      <svg class="hx-mark" width="72" height="64" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+      <svg class="hx-mark" id="translationMark" width="72" height="64" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
         <!-- Left element: body pointing right, two prongs/tails on the left -->
         <path d="
           M 54,50
@@ -770,7 +770,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let _loadingDirTimer = null;
 
   function startLoadingAnim() {
-    const mark = document.querySelector('.hx-mark');
+    const mark = document.getElementById('translationMark');
     const txt  = document.querySelector('#hxLoading .hx-loading-text');
     const words = TRAVEL_WORDS[uiLang] || TRAVEL_WORDS.en;
 
@@ -808,7 +808,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     clearInterval(_loadingWordTimer);
     clearTimeout(_loadingDirTimer);
     cancelAnimationFrame(_loadingRAF);
-    const mark = document.querySelector('.hx-mark');
+    const mark = document.getElementById('translationMark');
     if (mark) mark.style.transform = '';
   }
 
@@ -1132,11 +1132,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     for (const line of lines) {
       const t = line.trim();
       if (!t.startsWith('|')) continue;
-      if (t.match(/^\\|[-| :]+\\|$/)) { headerSkipped = false; continue; } // separator — next row is data
+      if (t.match(/^\\|[-| :]+\\|$/)) continue; // separator row — skip, do NOT reset headerSkipped
       const cells = t.split('|').slice(1, -1).map(c =>
         c.trim().replace(/\\*\\*(.+?)\\*\\*/g, '$1').replace(/`([^`]+)`/g, '$1')
       );
-      if (!headerSkipped) { headerSkipped = true; continue; } // skip column header row
+      if (!headerSkipped) { headerSkipped = true; continue; } // skip the single column header row
       if (cells.length < 2) continue;
       const label  = cells[0];
       const target = cells[cells.length - 1];
@@ -1144,7 +1144,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       parts.push(label ? label + ': ' + target : target);
     }
 
-    // Fallback: if no table found, return the raw text
     return parts.length > 0 ? parts.join('\\n\\n') : raw;
   }
 
