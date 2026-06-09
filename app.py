@@ -625,6 +625,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .tsv-selectors select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
   .tsv-clear { background: transparent; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 2px 4px; border-radius: 4px; flex-shrink: 0; }
   .tsv-clear:hover { color: var(--text); background: transparent; }
+  .tsv-header-toggle { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; }
+  .tsv-header-toggle input { accent-color: var(--accent); cursor: pointer; }
 
   /* Export bar */
   .export-bar {
@@ -814,6 +816,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </label>
         <label>Context
           <select id="tsvContext"><option value="-1">None</option><option value="1">Col B</option><option value="0">Col A</option></select>
+        </label>
+        <label class="tsv-header-toggle">
+          <input type="checkbox" id="tsvHasHeader" checked onchange="renderTsvPreview()">
+          Header row
         </label>
       </div>
       <button class="tsv-clear" onclick="clearTsv()" title="Dismiss">✕</button>
@@ -1339,10 +1345,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     srcSel.onchange = ctxSel.onchange = renderTsvPreview;
   }
 
+  function getDataRows() {
+    if (!tsvData) return [];
+    const skip = document.getElementById('tsvHasHeader')?.checked ? 1 : 0;
+    return tsvData.slice(skip);
+  }
+
   function renderTsvPreview() {
     if (!tsvData) return;
     const srcIdx = parseInt(document.getElementById('tsvSource').value);
-    const lines = tsvData.map((r, i) => `${i + 1}. ${r[srcIdx] || ''}`);
+    const rows = getDataRows();
+    const lines = rows.map((r, i) => `${i + 1}. ${r[srcIdx] || ''}`);
     document.getElementById('inputText').value = lines.join('\\n');
   }
 
@@ -1357,15 +1370,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const srcIdx = parseInt(document.getElementById('tsvSource').value);
     const ctxIdx = parseInt(document.getElementById('tsvContext').value);
     const hasCtx = ctxIdx >= 0 && ctxIdx !== srcIdx;
+    const rows = getDataRows();
+    if (!rows.length) return null;
 
     const srcInfo = srcLang !== 'auto' ? ` from ${srcLang}` : '';
     const typeInfo = type !== 'auto' ? ` (type: ${type})` : '';
 
     let msg = `Translate each row${srcInfo} to ${tgtLang}${typeInfo}.`;
-    if (hasCtx) msg += ` Column B is provided as reference/context — use it to stay consistent but do NOT translate it, only translate column A.`;
+    if (hasCtx) msg += ` The reference column is provided for context/consistency — do NOT translate it, only translate the source column.`;
     msg += `\\n\\nDeliver a single table with columns: Row | Source | Translation.\\n\\n`;
 
-    tsvData.forEach((row, i) => {
+    rows.forEach((row, i) => {
       const src = row[srcIdx] || '';
       const ctx = hasCtx ? row[ctxIdx] || '' : '';
       msg += `Row ${i + 1} — Source: ${src}`;
