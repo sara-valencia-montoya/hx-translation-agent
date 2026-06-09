@@ -238,11 +238,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     word-break: break-word;
   }
   .output-box.streaming { border-color: rgba(109,196,255,0.3); }
-  .output-box table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  .output-box table { border-collapse: collapse; width: 100%; margin: 16px 0; }
   .output-box th, .output-box td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; vertical-align: top; }
   .output-box th { background: rgba(109,196,255,0.06); color: var(--accent); font-size: 13px; }
   .output-box strong { color: var(--accent2); }
   .output-box code { background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .output-box h2 { font-size: 17px; font-weight: 700; color: var(--accent); margin: 20px 0 8px; }
+  .output-box h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin: 16px 0 6px; }
+  .output-box hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .output-box blockquote { border-left: 3px solid var(--accent); margin: 12px 0; padding: 8px 16px; background: rgba(109,196,255,0.04); border-radius: 0 8px 8px 0; color: var(--muted); font-size: 14px; }
+  .output-box ul, .output-box ol { padding-left: 22px; margin: 8px 0; }
+  .output-box li { margin-bottom: 4px; font-size: 15px; }
+  .output-box p { margin: 6px 0; }
   .placeholder { color: var(--muted); font-style: italic; }
 
   .controls {
@@ -771,45 +778,78 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function renderMarkdown(el, text) {
-    // Render tables
     const lines = text.split('\\n');
     let html = '';
     let inTable = false;
     let tableLines = [];
+    let inList = false;
+
+    const flushTable = () => {
+      if (tableLines.length) { html += renderTable(tableLines); tableLines = []; }
+      inTable = false;
+    };
+    const flushList = () => {
+      if (inList) { html += '</ul>'; inList = false; }
+    };
 
     for (const line of lines) {
-      if (line.trim().startsWith('|')) {
+      const t = line.trim();
+
+      if (t.startsWith('|')) {
+        flushList();
         inTable = true;
         tableLines.push(line);
+        continue;
+      }
+      if (inTable) flushTable();
+
+      if (t === '---' || t === '***' || t === '___') {
+        flushList();
+        html += '<hr>';
+      } else if (t.startsWith('### ')) {
+        flushList();
+        html += `<h3>${inlineEsc(t.slice(4))}</h3>`;
+      } else if (t.startsWith('## ')) {
+        flushList();
+        html += `<h2>${inlineEsc(t.slice(3))}</h2>`;
+      } else if (t.startsWith('# ')) {
+        flushList();
+        html += `<h2>${inlineEsc(t.slice(2))}</h2>`;
+      } else if (t.startsWith('> ')) {
+        flushList();
+        html += `<blockquote>${inlineEsc(t.slice(2))}</blockquote>`;
+      } else if (t.startsWith('- ') || t.startsWith('* ')) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += `<li>${inlineEsc(t.slice(2))}</li>`;
+      } else if (t === '') {
+        flushList();
+        html += '<br>';
       } else {
-        if (inTable) {
-          html += renderTable(tableLines);
-          tableLines = [];
-          inTable = false;
-        }
-        html += escLine(line) + '\\n';
+        flushList();
+        html += `<p>${inlineEsc(t)}</p>`;
       }
     }
-    if (inTable) html += renderTable(tableLines);
-
+    flushTable();
+    flushList();
     el.innerHTML = html;
   }
 
   function renderTable(lines) {
-    const rows = lines.filter(l => !l.match(/^\\|[-| :]+\\|$/));
+    const rows = lines.filter(l => !l.trim().match(/^\\|[-| :]+\\|$/));
     let html = '<table>';
     rows.forEach((row, i) => {
       const cells = row.split('|').slice(1, -1).map(c => c.trim());
       const tag = i === 0 ? 'th' : 'td';
-      html += '<tr>' + cells.map(c => `<${tag}>${escLine(c)}</${tag}>`).join('') + '</tr>';
+      html += '<tr>' + cells.map(c => `<${tag}>${inlineEsc(c)}</${tag}>`).join('') + '</tr>';
     });
     return html + '</table>';
   }
 
-  function escLine(line) {
-    return line
+  function inlineEsc(text) {
+    return text
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')
+      .replace(/\\*(.+?)\\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
