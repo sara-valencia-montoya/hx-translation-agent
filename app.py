@@ -488,7 +488,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .output-box table { border-collapse: collapse; width: 100%; margin: 16px 0; }
   .output-box th, .output-box td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; vertical-align: top; }
   .output-box th { background: rgba(109,196,255,0.06); color: var(--accent); font-size: 13px; }
-  .output-box strong { color: var(--accent2); }
+  .output-box strong { color: #ffffff; }
   .output-box code { background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
   .output-box h2 { font-size: 17px; font-weight: 700; color: var(--accent); margin: 20px 0 8px; }
   .output-box h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin: 16px 0 6px; }
