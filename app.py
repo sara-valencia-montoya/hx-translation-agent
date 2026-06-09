@@ -1138,10 +1138,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       );
       if (!headerSkipped) { headerSkipped = true; continue; } // skip the single column header row
       if (cells.length < 2) continue;
-      const label  = cells[0];
+      const label  = cells[0].toLowerCase();
       const target = cells[cells.length - 1];
+      // Skip meta/note rows — not actual translated content
+      const metaLabels = ['note', 'meta', 'type', 'source lang', 'target lang', 'source language', 'target language'];
+      if (metaLabels.includes(label)) continue;
       if (!target || target === '' || target.startsWith('[')) continue;
-      parts.push(label ? label + ': ' + target : target);
+      // Skip rows where target is a status note (starts with emoji checkmarks etc.)
+      if (/^[✅❌⚠️🔴🟡🟢]/.test(target)) continue;
+      parts.push(cells[0] ? cells[0] + ': ' + target : target);
     }
 
     return parts.length > 0 ? parts.join('\\n\\n') : raw;
