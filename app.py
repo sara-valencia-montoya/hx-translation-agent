@@ -1124,6 +1124,30 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   // ────────────────────────────────────────────────────────────────
 
+  function extractTranslatedText(raw) {
+    const lines = raw.split('\\n');
+    const parts = [];
+    let headerSkipped = false;
+
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t.startsWith('|')) continue;
+      if (t.match(/^\\|[-| :]+\\|$/)) { headerSkipped = false; continue; } // separator — next row is data
+      const cells = t.split('|').slice(1, -1).map(c =>
+        c.trim().replace(/\\*\\*(.+?)\\*\\*/g, '$1').replace(/`([^`]+)`/g, '$1')
+      );
+      if (!headerSkipped) { headerSkipped = true; continue; } // skip column header row
+      if (cells.length < 2) continue;
+      const label  = cells[0];
+      const target = cells[cells.length - 1];
+      if (!target || target === '' || target.startsWith('[')) continue;
+      parts.push(label ? label + ': ' + target : target);
+    }
+
+    // Fallback: if no table found, return the raw text
+    return parts.length > 0 ? parts.join('\\n\\n') : raw;
+  }
+
   function importFile(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1318,8 +1342,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       renderMarkdown(output, full);
       output.scrollTop = 0;
       document.getElementById('exportBar').className = 'export-bar visible';
-      // Auto-populate proofreader textarea
-      document.getElementById('proofInput').value = full;
+      // Auto-populate proofreader with translated text only (target column)
+      document.getElementById('proofInput').value = extractTranslatedText(full);
 
     } catch (e) {
       stopLoadingAnim();
