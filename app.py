@@ -17,7 +17,7 @@ SYSTEM_PROMPT = """Tu es un traducteur ou traductrice professionnel(le) spécial
 ## Identité
 
 - Langues : EN, FR, ES
-- Types de contenus : UI / Product, emails transactionnels, emails blast et automation, SEO, FAQ, tickets/bot, PR, LinkedIn
+- Types de contenus : UI / Product, emails transactionnels, emails blast et automation, SEO, FAQ / Zendesk, tickets/bot, Landing page, In-app, Social, PR, LinkedIn
 - Traductions conversationnelles, naturelles, fluides, idiomatiques, et prêtes à intégrer.
 - La priorité est au sens et à la lisibilité, pas au mot-à-mot.
 - Cohérence maximale avec les termes approuvés.
@@ -132,7 +132,7 @@ Objectif : informer + inspirer. Paragraphes courts. Adapter les expressions pour
 Format de sortie identique, Meta Type: blog.
 
 ### Sous-processus D — Autre contenu
-Déduire le canal (UI/Product, SEO, FAQ, tickets/bot, PR, LinkedIn). Appliquer le TOV. Format tableau source vs target, segments dans l'ordre, Meta Type: autre.
+Déduire le canal (UI/Product, SEO, FAQ/Zendesk, tickets/bot, Landing page, In-app, Social, PR, LinkedIn). Appliquer le TOV. Format tableau source vs target, segments dans l'ordre, Meta Type: autre + Canal détecté.
 
 ## Ce que l'assistant doit faire
 - Traduire uniquement. Pas de réécriture créative non demandée.
@@ -380,6 +380,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   .key-status.warn { color: var(--danger); }
   .key-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .ui-lang-toggle {
+    display: flex; gap: 4px; margin-left: 16px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px;
+  }
+  .ui-lang-btn {
+    background: transparent; border: none; color: var(--muted);
+    font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 5px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ui-lang-btn.active { background: var(--accent); color: #0f1117; }
+  .ui-lang-btn:hover:not(.active) { color: var(--text); }
 </style>
 </head>
 <body>
@@ -387,18 +398,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <header>
   <div class="logo">HX <span>Translate</span></div>
   <div class="badge">EN · FR · ES</div>
-  <span style="margin-left:auto;font-size:13px;color:var(--muted)">HomeExchange Translation Assistant</span>
+  <span id="headerTitle" style="margin-left:auto;font-size:13px;color:var(--muted)"></span>
+  <div class="ui-lang-toggle">
+    <button id="btnLangEN" class="ui-lang-btn active" onclick="setUiLang('en')">EN</button>
+    <button id="btnLangFR" class="ui-lang-btn" onclick="setUiLang('fr')">FR</button>
+  </div>
 </header>
 
 <main>
   <!-- Left panel: input -->
   <div class="panel">
-    <div class="panel-label">Content to translate</div>
+    <div class="panel-label" data-i18n="panelSource"></div>
 
     <div id="keyStatus" class="key-status" style="display:none">
       <span class="key-dot"></span>
       <span id="keyStatusText"></span>
-      <button onclick="changeKey()" style="margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);font-weight:500;padding:4px 10px;font-size:12px;">Change</button>
+      <button onclick="changeKey()" id="btnChangeKey" style="margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);font-weight:500;padding:4px 10px;font-size:12px;" data-i18n="btnChange"></button>
     </div>
 
     <div class="controls">
@@ -411,7 +426,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <option value="FR">FR</option>
             <option value="ES">ES</option>
           </select>
-          <button class="detect-btn" id="btnDetect" onclick="detectLang()" title="Détecter la langue source">⟳ Détecter</button>
+          <button class="detect-btn" id="btnDetect" onclick="detectLang()" data-i18n="btnDetect">⟳</button>
         </div>
         <span class="lang-arrow">→</span>
         <div class="lang-group">
@@ -423,18 +438,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           </select>
         </div>
         <select id="contentType" style="margin-left:8px">
-          <option value="auto">Type: auto</option>
+          <option value="auto" data-i18n="typeAuto"></option>
           <option value="blast">Email blast</option>
-          <option value="transactionnel">Email transactional</option>
+          <option value="transactionnel" data-i18n="typeTransac"></option>
           <option value="blog">Blog</option>
-          <option value="autre">Other content</option>
+          <option value="landing">Landing page</option>
+          <option value="zendesk">FAQ / Zendesk</option>
+          <option value="inapp">In-app</option>
+          <option value="social">Social</option>
+          <option value="autre" data-i18n="typeOther"></option>
         </select>
       </div>
       <div class="controls-actions">
         <div id="detectConfirm" class="detect-confirm hidden"></div>
         <div class="spinner" id="spinner"></div>
-        <button onclick="runTranslate()" id="btnTranslate">Translate</button>
-        <button class="clear" onclick="clearAll()">Clear</button>
+        <button onclick="runTranslate()" id="btnTranslate" data-i18n="btnTranslate"></button>
+        <button class="clear" onclick="clearAll()" data-i18n="btnClear"></button>
       </div>
     </div>
 
@@ -443,47 +462,129 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <!-- Right panel: output -->
   <div class="panel">
-    <div class="panel-label">Translation</div>
+    <div class="panel-label" data-i18n="panelOutput"></div>
     <div class="output-box" id="output">
-      <span class="placeholder">The translation will appear here with the source / target table and QA checklist.</span>
+      <span class="placeholder" data-i18n="placeholder"></span>
     </div>
   </div>
   <!-- Key gate modal -->
   <div class="key-gate" id="keyGate">
     <div class="key-card">
       <div>
-        <h2>API key required</h2>
-        <p>Choose how you want to use the HomeExchange translation assistant.</p>
+        <h2 data-i18n="keyTitle"></h2>
+        <p data-i18n="keySubtitle"></p>
       </div>
 
       <div id="optionCompany" class="key-option" style="display:none" onclick="selectMode('company')">
         <input type="radio" name="keyMode" id="radioCompany" value="company"/>
         <div class="key-option-body">
-          <div class="key-option-title">Use HomeExchange shared key</div>
-          <div class="key-option-desc">Team key configured by the company. No personal key required.</div>
+          <div class="key-option-title" data-i18n="keyCompanyTitle"></div>
+          <div class="key-option-desc" data-i18n="keyCompanyDesc"></div>
         </div>
       </div>
 
       <div class="key-option" id="optionOwn" onclick="selectMode('own')">
         <input type="radio" name="keyMode" id="radioOwn" value="own"/>
         <div class="key-option-body">
-          <div class="key-option-title">Use my own Anthropic key</div>
-          <div class="key-option-desc">Enter your personal key (sk-ant-…). Stored only in your browser.</div>
+          <div class="key-option-title" data-i18n="keyOwnTitle"></div>
+          <div class="key-option-desc" data-i18n="keyOwnDesc"></div>
           <div class="key-input-wrap" id="ownKeyWrap">
             <input type="password" id="ownKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" onclick="event.stopPropagation()"/>
           </div>
         </div>
       </div>
 
-      <button class="key-confirm" id="keyConfirmBtn" onclick="confirmKey()" disabled>Continue</button>
+      <button class="key-confirm" id="keyConfirmBtn" onclick="confirmKey()" disabled data-i18n="keyContinue"></button>
     </div>
   </div>
 
 </main>
 
 <script>
-  let activeKey = '';  // "__company__" or actual sk-ant-...
+  let activeKey = '';
   let hasCompanyKey = false;
+  let uiLang = localStorage.getItem('hx_ui_lang') || 'en';
+
+  const I18N = {
+    en: {
+      headerTitle: 'HomeExchange Translation Assistant',
+      panelSource: 'Content to translate',
+      panelOutput: 'Translation',
+      placeholder: 'The translation will appear here with the source / target table and QA checklist.',
+      btnDetect: '⟳ Detect',
+      btnTranslate: 'Translate',
+      btnClear: 'Clear',
+      btnChange: 'Change',
+      typeAuto: 'Type: auto',
+      typeTransac: 'Email transactional',
+      typeOther: 'Other content',
+      keyTitle: 'API key required',
+      keySubtitle: 'Choose how you want to use the HomeExchange translation assistant.',
+      keyCompanyTitle: 'Use HomeExchange shared key',
+      keyCompanyDesc: 'Team key configured by the company. No personal key required.',
+      keyOwnTitle: 'Use my own Anthropic key',
+      keyOwnDesc: 'Enter your personal key (sk-ant-…). Stored only in your browser.',
+      keyContinue: 'Continue',
+      keyActiveCompany: 'HomeExchange key active',
+      keyActiveOwn: 'Personal key active',
+      alertNoKey: 'Enter your Anthropic API key before translating.',
+      alertNoText: 'Paste some content to translate.',
+      alertDetectNoText: 'Paste some content first.',
+      alertDetectError: 'Detection error: ',
+      detectedLabel: 'Source detected: ',
+    },
+    fr: {
+      headerTitle: 'Assistant de traduction HomeExchange',
+      panelSource: 'Contenu à traduire',
+      panelOutput: 'Traduction',
+      placeholder: 'La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.',
+      btnDetect: '⟳ Détecter',
+      btnTranslate: 'Traduire',
+      btnClear: 'Effacer',
+      btnChange: 'Changer',
+      typeAuto: 'Type auto',
+      typeTransac: 'Email transactionnel',
+      typeOther: 'Autre contenu',
+      keyTitle: 'Clé API requise',
+      keySubtitle: 'Choisis comment tu veux utiliser l\'assistant de traduction HomeExchange.',
+      keyCompanyTitle: 'Utiliser la clé HomeExchange',
+      keyCompanyDesc: 'Clé partagée configurée par l\'équipe. Aucune clé personnelle requise.',
+      keyOwnTitle: 'Utiliser ma propre clé Anthropic',
+      keyOwnDesc: 'Entre ta clé personnelle (sk-ant-…). Stockée uniquement dans ton navigateur.',
+      keyContinue: 'Continuer',
+      keyActiveCompany: 'Clé HomeExchange active',
+      keyActiveOwn: 'Clé personnelle active',
+      alertNoKey: 'Entre ta clé API Anthropic avant de traduire.',
+      alertNoText: 'Colle un contenu à traduire.',
+      alertDetectNoText: 'Colle d\'abord un contenu.',
+      alertDetectError: 'Erreur de détection : ',
+      detectedLabel: 'Source détectée : ',
+    }
+  };
+
+  function t(key) { return I18N[uiLang][key] || I18N.en[key] || key; }
+
+  function setUiLang(lang) {
+    uiLang = lang;
+    localStorage.setItem('hx_ui_lang', lang);
+    document.getElementById('btnLangEN').className = 'ui-lang-btn' + (lang === 'en' ? ' active' : '');
+    document.getElementById('btnLangFR').className = 'ui-lang-btn' + (lang === 'fr' ? ' active' : '');
+    applyI18n();
+  }
+
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      const val = t(key);
+      if (el.tagName === 'OPTION') el.textContent = val;
+      else if (el.tagName === 'INPUT') el.placeholder = val;
+      else el.textContent = val;
+    });
+    document.getElementById('headerTitle').textContent = t('headerTitle');
+    // Update placeholder in output if untouched
+    const ph = document.querySelector('#output .placeholder');
+    if (ph) ph.textContent = t('placeholder');
+  }
 
   async function initKeyGate() {
     const res = await fetch('/config');
@@ -528,7 +629,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (mode === 'company') {
       activeKey = '__company__';
       localStorage.setItem('hx_key_mode', 'company');
-      showStatus('HomeExchange key active', false);
+      showStatus(t('keyActiveCompany'), false);
     } else {
       const val = document.getElementById('ownKeyInput').value.trim();
       if (!val.startsWith('sk-')) {
@@ -538,7 +639,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       activeKey = val;
       localStorage.setItem('hx_key_mode', 'own');
       localStorage.setItem('hx_own_key', val);
-      showStatus('Personal key active', false);
+      showStatus(t('keyActiveOwn'), false);
     }
 
     document.getElementById('keyGate').className = 'key-gate hidden';
@@ -557,7 +658,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function clearAll() {
     document.getElementById('inputText').value = '';
-    document.getElementById('output').innerHTML = '<span class="placeholder">The translation will appear here with the source / target table and QA checklist.</span>';
+    document.getElementById('output').innerHTML = `<span class="placeholder">${t('placeholder')}</span>`;
     document.getElementById('sourceLang').value = 'auto';
     document.getElementById('detectConfirm').className = 'detect-confirm hidden';
   }
@@ -565,7 +666,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   async function detectLang() {
     if (!activeKey) { changeKey(); return; }
     const text = document.getElementById('inputText').value.trim();
-    if (!text) { alert('Paste some content first.'); return; }
+    if (!text) { alert(t('alertDetectNoText')); return; }
 
     const btn = document.getElementById('btnDetect');
     btn.disabled = true;
@@ -586,13 +687,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       const confirm = document.getElementById('detectConfirm');
       const labels = { EN: 'English', FR: 'Français', ES: 'Español' };
-      confirm.textContent = `Source detected: ${labels[detected] || detected}`;
+      confirm.textContent = t('detectedLabel') + (labels[detected] || detected);
       confirm.className = 'detect-confirm' + (prev !== 'auto' && prev !== detected ? ' changed' : '');
     } catch(e) {
-      alert('Detection error: ' + e.message);
+      alert(t('alertDetectError') + e.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = '⟳ Detect';
+      btn.textContent = t('btnDetect');
     }
   }
 
@@ -601,7 +702,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const key = activeKey;
 
     const text = document.getElementById('inputText').value.trim();
-    if (!text) { alert('Paste content to translate.'); return; }
+    if (!text) { alert(t('alertNoText')); return; }
 
     const sourceLang = document.getElementById('sourceLang').value;
     const lang = document.getElementById('targetLang').value;
@@ -714,6 +815,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runTranslate();
   });
 
+  setUiLang(uiLang);
   initKeyGate();
 </script>
 </body>
