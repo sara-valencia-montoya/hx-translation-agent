@@ -344,23 +344,30 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     min-height: 200px;
   }
   .hx-loading.visible { display: flex; }
-  .hx-spinner-ring {
-    width: 48px; height: 48px;
-    border: 3px solid rgba(247,168,0,0.15);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: hx-spin 0.9s linear infinite;
+  .hx-mark {
+    animation: hx-jump 1.1s cubic-bezier(.36,.07,.19,.97) infinite;
+    transform-origin: center bottom;
   }
   .hx-loading-text {
     color: var(--muted);
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    animation: hx-fade 1.6s ease-in-out infinite;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: hx-fade 1.1s ease-in-out infinite;
   }
-  @keyframes hx-spin { to { transform: rotate(360deg); } }
+  @keyframes hx-jump {
+    0%   { transform: translateY(0)    rotate(0deg)   scaleX(1)    scaleY(1); }
+    18%  { transform: translateY(-28px) rotate(-12deg) scaleX(0.92) scaleY(1.08); }
+    36%  { transform: translateY(-32px) rotate(14deg)  scaleX(1.06) scaleY(0.94); }
+    52%  { transform: translateY(-14px) rotate(-8deg)  scaleX(0.97) scaleY(1.03); }
+    68%  { transform: translateY(6px)   rotate(5deg)   scaleX(1.08) scaleY(0.88); }
+    80%  { transform: translateY(-8px)  rotate(-4deg)  scaleX(0.96) scaleY(1.04); }
+    90%  { transform: translateY(2px)   rotate(2deg)   scaleX(1.02) scaleY(0.98); }
+    100% { transform: translateY(0)    rotate(0deg)   scaleX(1)    scaleY(1); }
+  }
   @keyframes hx-fade {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 1; }
   }
 
   /* Key gate overlay */
@@ -506,7 +513,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <span class="placeholder" data-i18n="placeholder"></span>
     </div>
     <div class="hx-loading" id="hxLoading">
-      <div class="hx-spinner-ring"></div>
+      <svg class="hx-mark" width="72" height="64" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Left element: body pointing right, two prongs/tails on the left -->
+        <path d="
+          M 54,50
+          C 50,40 40,28 22,14
+          C 17,19 22,24 30,31
+          C 38,38 46,44 49,50
+          C 46,56 38,62 30,69
+          C 22,76 17,81 22,86
+          C 40,72 50,60 54,50 Z
+        " fill="#F7A800"/>
+        <!-- Right element: mirror -->
+        <path d="
+          M 66,50
+          C 70,40 80,28 98,14
+          C 103,19 98,24 90,31
+          C 82,38 74,44 71,50
+          C 74,56 82,62 90,69
+          C 98,76 103,81 98,86
+          C 80,72 70,60 66,50 Z
+        " fill="#F7A800"/>
+      </svg>
       <span class="hx-loading-text" data-i18n="loadingText"></span>
     </div>
   </div>
