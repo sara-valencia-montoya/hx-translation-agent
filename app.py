@@ -45,6 +45,7 @@ SYSTEM_PROMPT = """Tu es un traducteur ou traductrice professionnel(le) spécial
 6. Écriture inclusive. FR : formulations neutres en priorité, puis point médian ou doublets si nécessaire. ES : formes neutres en priorité, puis pluriel inclusif en -os.
 
 7. NEVER use the sign "—" it is a common IA pattern and must not appear in output.
+8. NEVER use the "§" symbol in tables or anywhere in the output. Use plain numbers (1, 2, 3…) for row labels.
 
 ## Langue et micro-règles
 
