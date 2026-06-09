@@ -470,13 +470,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     word-break: break-word;
   }
   .output-box.streaming { border-color: rgba(109,196,255,0.3); }
-  .lang-result-badge {
-    display: inline-block; background: rgba(247,168,0,0.12); color: var(--accent);
-    border: 1px solid rgba(247,168,0,0.3); border-radius: 100px;
-    font-size: 12px; font-weight: 700; padding: 3px 12px; margin: 16px 0 8px;
-    letter-spacing: 1px;
+  /* Result tabs */
+  .result-tabs {
+    display: flex; gap: 4px; flex-shrink: 0;
+    border-bottom: 1px solid var(--border); padding-bottom: 0;
   }
-  .lang-result-block { margin-bottom: 8px; }
+  .result-tab {
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    color: var(--muted); font-size: 13px; font-weight: 700; padding: 6px 16px;
+    cursor: pointer; transition: all 0.15s; border-radius: 6px 6px 0 0;
+    margin-bottom: -1px; letter-spacing: 0.5px;
+  }
+  .result-tab:hover { color: var(--text); background: rgba(247,168,0,0.04); }
+  .result-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: transparent; }
+  .result-panel { display: none; }
+  .result-panel.active { display: block; }
   .output-box table { border-collapse: collapse; width: 100%; margin: 16px 0; }
   .output-box th, .output-box td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; vertical-align: top; }
   .output-box th { background: rgba(109,196,255,0.06); color: var(--accent); font-size: 13px; }
@@ -1607,19 +1615,42 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       output.innerHTML = '';
 
       const allRaw = [];
-      results.forEach(({ lang, result }) => {
-        // Language badge header
-        const badge = document.createElement('div');
-        badge.className = 'lang-result-badge';
-        badge.textContent = lang;
-        output.appendChild(badge);
 
-        const block = document.createElement('div');
-        block.className = 'lang-result-block';
-        renderMarkdown(block, result);
-        output.appendChild(block);
-        allRaw.push(`## ${lang}\\n\\n${result}`);
-      });
+      if (results.length === 1) {
+        // Single language — no tabs needed
+        renderMarkdown(output, results[0].result);
+        allRaw.push(results[0].result);
+      } else {
+        // Multiple languages — render as tabs
+        const tabBar = document.createElement('div');
+        tabBar.className = 'result-tabs';
+
+        const panels = [];
+        results.forEach(({ lang, result }, i) => {
+          // Tab button
+          const tab = document.createElement('button');
+          tab.className = 'result-tab' + (i === 0 ? ' active' : '');
+          tab.textContent = lang;
+          tab.onclick = () => {
+            tabBar.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            panels[i].classList.add('active');
+          };
+          tabBar.appendChild(tab);
+
+          // Panel
+          const panel = document.createElement('div');
+          panel.className = 'result-panel' + (i === 0 ? ' active' : '');
+          renderMarkdown(panel, result);
+          panels.push(panel);
+
+          allRaw.push(`## ${lang}\\n\\n${result}`);
+        });
+
+        output.appendChild(tabBar);
+        panels.forEach(p => output.appendChild(p));
+      }
 
       lastRawOutput = allRaw.join('\\n\\n---\\n\\n');
       output.scrollTop = 0;
