@@ -736,6 +736,39 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   .ui-lang-btn.active { background: var(--accent); color: #1a1200; }
   .ui-lang-btn:hover:not(.active) { color: var(--text); }
+
+  /* ── Mobile ─────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    html, body { height: auto; min-height: 100vh; }
+    body { height: auto; }
+
+    header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+    #headerTitle { display: none; }
+
+    main { flex-direction: column; overflow: visible; height: auto; }
+
+    .panel { padding: 16px; gap: 12px; overflow: visible; min-height: auto; }
+    .panel + .panel { border-left: none; border-top: 1px solid var(--border); }
+
+    #inputText { min-height: 160px; max-height: 260px; }
+    .output-box { min-height: 180px; max-height: none; overflow: visible; }
+
+    .lang-row { flex-wrap: wrap; gap: 10px; }
+    .lang-checks { flex-wrap: wrap; }
+    .controls-actions { flex-wrap: wrap; }
+    .tsv-banner { flex-wrap: wrap; }
+    .tsv-selectors { flex-wrap: wrap; gap: 8px; margin-left: 0; width: 100%; }
+    .export-bar { flex-wrap: wrap; }
+    .proof-body textarea { min-height: 100px; max-height: 180px; }
+    .key-card { width: 90vw; padding: 28px 20px; }
+    .ui-lang-toggle { margin-left: 0; }
+    header a[href="/logout"] { display: none; }
+  }
+
+  @media (max-width: 400px) {
+    .lang-check { padding: 5px 10px; font-size: 12px; }
+    button { font-size: 13px; padding: 10px 16px; }
+  }
 </style>
 </head>
 <body>
