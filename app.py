@@ -364,19 +364,27 @@ Always respond with exactly these two sections:
 
 ### Improved version
 
-Output the improved text DIRECTLY — no preamble, no intro sentence, no "No structural changes needed", no meta-commentary before the content. Start immediately with the first word of the improved text.
+**If the input contains labeled fields** (e.g. "Subject line: …", "Pre-header: …", "Body: …"), output the improved version as a markdown table:
 
-The revised version must:
-- keep the original meaning
-- improve flow and clarity
-- apply HomeExchange terminology
-- match the appropriate tone of voice for the channel
-- be sharper (shorter when possible)
-- respect inclusive writing rules
-- keep the same structure unless changing it clearly improves clarity
-- never remove meaning, CTAs, warnings, or legal mentions
+| Field | Original | Improved |
+|---|---|---|
+| Subject line | [original] | [improved] |
+| Pre-header | [original] | [improved] |
+| … | … | … |
 
-If you made structural changes, add a brief note AFTER the improved text under the heading `### What changed` (1-3 bullets max). Never put any note or explanation before the improved text.
+**If the input is plain text without labels**, output a table with numbered rows:
+
+| # | Original | Improved |
+|---|---|---|
+| 1 | [original sentence] | [improved sentence] |
+
+Rules for the table:
+- No preamble, no intro sentence before the table. Start immediately with the table.
+- Keep each cell on a single line (no line breaks inside cells).
+- Apply all HomeExchange rules to the Improved column.
+- Never remove meaning, CTAs, warnings, or legal mentions.
+
+If you made structural changes, add a brief note AFTER the table under the heading `### What changed` (1-3 bullets max).
 
 If the content is Product/UI copy: act as a UX content assistant. Be an expert in microcopy: clear, inclusive, actionable, aligned with HomeExchange TOV and UX writing guidelines.
 
@@ -1222,11 +1230,33 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let _proofRAF = null, _proofWordTimer = null, _proofDirTimer = null;
   let proofLangs = []; // [{lang, text}] when multi-language
 
+  function extractTranslatedTextLabeled(raw) {
+    // Like extractTranslatedText but keeps "Label: text" format for proofreader context
+    const lines = raw.split('\\n');
+    const parts = [];
+    let headerSkipped = false;
+    for (const line of lines) {
+      const tr = line.trim();
+      if (!tr.startsWith('|')) continue;
+      if (tr.match(/^\\|[-| :]+\\|$/)) continue;
+      const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1'));
+      if (!headerSkipped) { headerSkipped = true; continue; }
+      if (cells.length < 2) continue;
+      const label = cells[0];
+      const target = cells[cells.length - 1];
+      const metaLabels = ['note','meta','type','source lang','target lang','source language','target language'];
+      if (metaLabels.includes(label.toLowerCase())) continue;
+      if (!target || target === '' || target.startsWith('[') || /^[✅❌⚠️🔴🟡🟢]/.test(target)) continue;
+      parts.push(label ? label + ': ' + target : target);
+    }
+    return parts.length > 0 ? parts.join('\\n') : extractTranslatedText(raw);
+  }
+
   function buildProofTabs(results) {
     const tabBar  = document.getElementById('proofTabs');
     const textarea = document.getElementById('proofInput');
     proofLangs = results.map(({ lang, result }) => ({
-      lang, text: extractTranslatedText(result)
+      lang, text: extractTranslatedTextLabeled(result)  // keep labels for table output
     }));
 
     if (proofLangs.length <= 1) {
@@ -1372,16 +1402,33 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         if (/improved version/i.test(line)) { found = true; }
         continue;
       }
-      // Stop at separator or "What changed" heading — notes below are not content
       if (line.trim() === '---' || /what.?changed/i.test(line)) break;
       parts.push(line);
     }
     return found ? parts.join('\\n').trim() : raw;
   }
 
+  function tableToTSV(raw) {
+    // Convert markdown table to TSV for Excel paste
+    const lines = raw.split('\\n');
+    const rows = [];
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t.startsWith('|')) continue;
+      if (t.match(/^\\|[-| :]+\\|$/)) continue; // separator
+      const cells = t.split('|').slice(1,-1).map(c =>
+        c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1')
+      );
+      rows.push(cells.join('\\t'));
+    }
+    return rows.length ? rows.join('\\n') : raw;
+  }
+
   function exportProofCopy() {
     if (!lastProofOutput) return;
-    const text = extractImprovedVersion(lastProofOutput);
+    const improved = extractImprovedVersion(lastProofOutput);
+    // If improved section contains a table, copy as TSV for Excel; otherwise plain text
+    const text = improved.includes('|') ? tableToTSV(improved) : improved;
     navigator.clipboard.writeText(text).then(() => {
       const btn = document.getElementById('btnProofCopy');
       btn.className = 'export-btn success';
