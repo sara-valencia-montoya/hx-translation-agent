@@ -1581,7 +1581,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (!lastRawOutput) return;
     // Export clean translated text per language
     const content = lastResults.length > 1
-      ? lastResults.map(({ lang, result }) => `## ${lang}\n\n${extractTranslatedText(result)}`).join('\n\n---\n\n')
+      ? lastResults.map(({ lang, result }) => '## ' + lang + '\\n\\n' + extractTranslatedText(result)).join('\\n\\n---\\n\\n')
       : extractTranslatedText(getActiveResult());
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
