@@ -1515,7 +1515,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     output.style.display = 'none';
     loader.className = 'hx-loading visible';
     document.getElementById('proofExportBar').className = 'export-bar';
-    document.getElementById('combinedSection').style.display = 'none';
     proofResults = {};
     startProofAnim();
 
