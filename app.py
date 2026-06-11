@@ -376,7 +376,7 @@ The revised version must:
 - keep the same structure unless changing it clearly improves clarity
 - never remove meaning, CTAs, warnings, or legal mentions
 
-If you changed the structure, add a brief note AFTER the improved text (1-3 bullets), never before.
+If you made structural changes, add a brief note AFTER the improved text under the heading `### What changed` (1-3 bullets max). Never put any note or explanation before the improved text.
 
 If the content is Product/UI copy: act as a UX content assistant. Be an expert in microcopy: clear, inclusive, actionable, aligned with HomeExchange TOV and UX writing guidelines.
 
@@ -495,7 +495,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .output-box strong { color: #ffffff; }
   .output-box code { background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
   .output-box h2 { font-size: 17px; font-weight: 700; color: var(--accent); margin: 20px 0 8px; }
-  .output-box h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin: 16px 0 6px; }
+  .output-box h3 { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 8px; padding: 8px 12px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--border); border-radius: 0 6px 6px 0; }
   .output-box hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   .output-box blockquote { border-left: 3px solid var(--accent); margin: 12px 0; padding: 8px 16px; background: rgba(109,196,255,0.04); border-radius: 0 8px 8px 0; color: var(--muted); font-size: 14px; }
   .output-box ul, .output-box ol { padding-left: 22px; margin: 8px 0; }
@@ -1372,6 +1372,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         if (/improved version/i.test(line)) { found = true; }
         continue;
       }
+      // Stop at separator or "What changed" heading — notes below are not content
+      if (line.trim() === '---' || /what.?changed/i.test(line)) break;
       parts.push(line);
     }
     return found ? parts.join('\\n').trim() : raw;
