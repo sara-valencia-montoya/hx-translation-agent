@@ -1359,9 +1359,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
   }
 
+  function extractImprovedVersion(raw) {
+    const lines = raw.split('\\n');
+    let found = false;
+    const parts = [];
+    for (const line of lines) {
+      if (!found) {
+        if (/improved version/i.test(line)) { found = true; }
+        continue;
+      }
+      parts.push(line);
+    }
+    return found ? parts.join('\\n').trim() : raw;
+  }
+
   function exportProofCopy() {
     if (!lastProofOutput) return;
-    navigator.clipboard.writeText(lastProofOutput).then(() => {
+    const text = extractImprovedVersion(lastProofOutput);
+    navigator.clipboard.writeText(text).then(() => {
       const btn = document.getElementById('btnProofCopy');
       btn.className = 'export-btn success';
       btn.querySelector('[data-i18n]').textContent = t('exportCopied');
