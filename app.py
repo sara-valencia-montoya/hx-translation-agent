@@ -621,15 +621,44 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .proof-body textarea:focus { border-color: rgba(247,168,0,0.4); }
   .proof-controls { display: flex; gap: 10px; align-items: center; }
 
-  /* Combined results */
-  .combined-section {
-    border: 1px solid rgba(247,168,0,0.25); border-radius: var(--radius);
-    background: rgba(247,168,0,0.03); flex-shrink: 0; overflow: hidden;
+  /* Results table FAB button */
+  .results-fab {
+    position: fixed; top: 16px; right: 16px; z-index: 200;
+    background: var(--accent); color: #1a1200;
+    border: none; border-radius: 100px;
+    font-size: 13px; font-weight: 700; padding: 9px 18px;
+    cursor: pointer; box-shadow: 0 4px 16px rgba(247,168,0,0.35);
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    white-space: nowrap;
   }
-  .combined-header {
+  .results-fab:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(247,168,0,0.45); }
+
+  /* Results modal */
+  .results-modal-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 300; backdrop-filter: blur(3px);
+  }
+  .results-modal-backdrop.open { display: block; }
+  .results-modal {
+    display: none; position: fixed;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 400; width: min(90vw, 900px); max-height: 80vh;
+    background: var(--bg-card); border: 1px solid rgba(247,168,0,0.25);
+    border-radius: 16px; flex-direction: column; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .results-modal.open { display: flex; }
+  .results-modal-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; border-bottom: 1px solid rgba(247,168,0,0.15);
+    padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
   }
+  .results-modal-title { font-size: 15px; font-weight: 700; color: var(--accent); }
+  .results-modal-close {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; font-size: 14px; padding: 4px 10px; cursor: pointer;
+  }
+  .results-modal-close:hover { color: var(--text); border-color: var(--text); background: transparent; }
+  .results-modal-body { overflow-y: auto; padding: 20px; }
 
   /* Make right panel scrollable to fit proofreader */
   .panel { overflow-y: auto; }
@@ -922,13 +951,25 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- Combined results section -->
-    <div class="combined-section" id="combinedSection" style="display:none">
-      <div class="combined-header">
-        <span class="proof-title">Combined results</span>
-        <button class="export-btn" id="btnCombinedCopy" onclick="copyCombinedTSV()">📋 Copy as TSV</button>
+
+    <!-- Results table fixed button -->
+    <button class="results-fab" id="resultsFab" style="display:none" onclick="openResultsModal()">
+      Results table ↗
+    </button>
+
+    <!-- Results table modal -->
+    <div class="results-modal-backdrop" id="resultsModalBackdrop" onclick="closeResultsModal()"></div>
+    <div class="results-modal" id="resultsModal">
+      <div class="results-modal-header">
+        <span class="results-modal-title">Results table</span>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="export-btn" id="btnCombinedCopy" onclick="copyCombinedTSV()">📋 Copy as TSV</button>
+          <button class="results-modal-close" onclick="closeResultsModal()">✕</button>
+        </div>
       </div>
-      <div class="output-box" id="combinedOutput"></div>
+      <div class="results-modal-body">
+        <div class="output-box" id="combinedOutput" style="max-height:none;overflow:visible"></div>
+      </div>
     </div>
 
     <div class="hx-loading" id="hxLoading">
@@ -1269,7 +1310,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function updateCombinedSection() {
     const langs = Object.keys(proofResults);
-    if (langs.length < 2) { document.getElementById('combinedSection').style.display = 'none'; return; }
+    if (langs.length < 2) { document.getElementById('resultsFab').style.display = 'none'; return; }
 
     const firstRows = proofResults[langs[0]];
     if (!firstRows || !firstRows.length) return;
@@ -1279,18 +1320,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     mdTable += '|---|---|' + langs.map(() => '---|').join('') + '\\n';
 
     firstRows.forEach((row, i) => {
-      let line = `| ${row.field} | ${row.original} |`;
+      let line = '| ' + row.field + ' | ' + row.original + ' |';
       langs.forEach(l => {
         const r = proofResults[l]?.[i];
-        line += ` ${r ? r.improved : ''} |`;
+        line += ' ' + (r ? r.improved : '') + ' |';
       });
       mdTable += line + '\\n';
     });
 
-    const section = document.getElementById('combinedSection');
-    const output = document.getElementById('combinedOutput');
-    section.style.display = '';
-    renderMarkdown(output, mdTable);
+    renderMarkdown(document.getElementById('combinedOutput'), mdTable);
+    document.getElementById('resultsFab').style.display = '';
+    openResultsModal(); // auto-open when ready
+  }
+
+  function openResultsModal() {
+    document.getElementById('resultsModal').className = 'results-modal open';
+    document.getElementById('resultsModalBackdrop').className = 'results-modal-backdrop open';
+  }
+
+  function closeResultsModal() {
+    document.getElementById('resultsModal').className = 'results-modal';
+    document.getElementById('resultsModalBackdrop').className = 'results-modal-backdrop';
   }
 
   function copyCombinedTSV() {
@@ -1394,7 +1444,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     proofLangs = [];
     lastProofOutput = '';
     proofResults = {};
-    document.getElementById('combinedSection').style.display = 'none';
+    document.getElementById('resultsFab').style.display = 'none';
+    closeResultsModal();
   }
 
   function startProofAnim() {
