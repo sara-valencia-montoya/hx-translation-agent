@@ -1201,6 +1201,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   let lastRawOutput = '';
+  let lastResults = []; // [{lang, result}] — per-language raw outputs
+
+  function getActiveResult() {
+    if (!lastResults.length) return lastRawOutput;
+    if (lastResults.length === 1) return lastResults[0].result;
+    // Multi-language: return the active tab's result
+    const activeTab = document.querySelector('#output .result-tab.active');
+    if (!activeTab) return lastResults[0].result;
+    const match = lastResults.find(r => r.lang === activeTab.textContent);
+    return match ? match.result : lastResults[0].result;
+  }
 
   // ── Proofreader ────────────────────────────────────────────────
   let lastProofOutput = '';
@@ -1548,11 +1559,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('tsvBanner').className = 'tsv-banner';
     tsvData = null;
     lastRawOutput = '';
+    lastResults = [];
   }
 
   function exportCopy() {
     if (!lastRawOutput) return;
-    navigator.clipboard.writeText(lastRawOutput).then(() => {
+    // Copy only the translated text of the active tab (clean, no pipes)
+    const clean = extractTranslatedText(getActiveResult());
+    navigator.clipboard.writeText(clean).then(() => {
       const btn = document.getElementById('btnCopy');
       btn.className = 'export-btn success';
       btn.querySelector('[data-i18n]').textContent = t('exportCopied');
@@ -1565,18 +1579,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function exportMarkdown() {
     if (!lastRawOutput) return;
-    const blob = new Blob([lastRawOutput], { type: 'text/markdown;charset=utf-8' });
+    // Export clean translated text per language
+    const content = lastResults.length > 1
+      ? lastResults.map(({ lang, result }) => `## ${lang}\n\n${extractTranslatedText(result)}`).join('\n\n---\n\n')
+      : extractTranslatedText(getActiveResult());
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'translation.md';
-    a.click();
+    a.href = url; a.download = 'translation.md'; a.click();
     URL.revokeObjectURL(url);
   }
 
   function exportCSV() {
     if (!lastRawOutput) return;
-    const lines = lastRawOutput.split('\\n');
+    // CSV keeps the full source+target table — useful for spreadsheet workflows
+    const raw = lastRawOutput;
+    const lines = raw.split('\\n');
     const csvRows = [];
     for (const line of lines) {
       if (line.trim().startsWith('|') && !line.trim().match(/^\\|[-| :]+\\|$/)) {
@@ -1589,13 +1607,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         csvRows.push(cells.join(','));
       }
     }
-    const content = csvRows.length ? csvRows.join('\\n') : lastRawOutput;
+    const content = csvRows.length ? csvRows.join('\\n') : raw;
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'translation.csv';
-    a.click();
+    a.href = url; a.download = 'translation.csv'; a.click();
     URL.revokeObjectURL(url);
   }
 
@@ -1749,6 +1765,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }
 
       lastRawOutput = allRaw.join('\\n\\n---\\n\\n');
+      lastResults = results;
       output.scrollTop = 0;
       document.getElementById('exportBar').className = 'export-bar visible';
 
