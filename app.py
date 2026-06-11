@@ -1422,55 +1422,96 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (mark) mark.style.transform = '';
   }
 
+  async function streamProofread(text) {
+    const resp = await fetch('/proofread', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, api_key: activeKey })
+    });
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.detail || resp.statusText); }
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of decoder.decode(value, { stream: true }).split('\\n')) {
+        if (line.startsWith('data: ')) {
+          try { const d = JSON.parse(line.slice(6)); if (d.text) full += d.text; } catch {}
+        }
+      }
+    }
+    return full;
+  }
+
   async function runProofread() {
     if (!activeKey) { changeKey(); return; }
-    const text = document.getElementById('proofInput').value.trim();
-    if (!text) { alert(t('alertNoText')); return; }
 
     const loader = document.getElementById('hxProofLoading');
     const output = document.getElementById('proofOutput');
     const btn    = document.getElementById('btnProofread');
+    const loadTxt = document.getElementById('proofLoadingText');
+
+    // Determine which languages to proofread
+    const langsToProof = proofLangs.length > 0 ? proofLangs : null;
+    const isSingle = !langsToProof || langsToProof.length <= 1;
+
+    // If single language / plain text, just use current textarea
+    const singleText = isSingle ? document.getElementById('proofInput').value.trim() : null;
+    if (isSingle && !singleText) { alert(t('alertNoText')); return; }
 
     btn.disabled = true;
     output.style.display = 'none';
     loader.className = 'hx-loading visible';
     document.getElementById('proofExportBar').className = 'export-bar';
+    document.getElementById('combinedSection').style.display = 'none';
+    proofResults = {};
     startProofAnim();
 
+    const tabBar = document.getElementById('proofTabs');
+
     try {
-      const resp = await fetch('/proofread', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, api_key: activeKey })
-      });
-      if (!resp.ok) {
-        const err = await resp.json();
-        output.textContent = 'Error: ' + (err.detail || resp.statusText);
-        return;
-      }
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let full = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        for (const line of decoder.decode(value, { stream: true }).split('\\n')) {
-          if (line.startsWith('data: ')) {
-            try { const d = JSON.parse(line.slice(6)); if (d.text) full += d.text; } catch {}
-          }
+      if (isSingle) {
+        // Single language — run once
+        if (loadTxt) loadTxt.textContent = t('proofLoadingText');
+        const full = await streamProofread(singleText);
+        lastProofOutput = full;
+        const lang = getActiveProofLang() || 'Text';
+        proofResults[lang] = parseProofTable(full);
+        stopProofAnim();
+        loader.className = 'hx-loading';
+        output.style.display = '';
+        renderMarkdown(output, full);
+        output.scrollTop = 0;
+        document.getElementById('proofExportBar').className = 'export-bar visible';
+      } else {
+        // Multiple languages — run sequentially, update tabs as we go
+        let lastFull = '';
+        for (let i = 0; i < langsToProof.length; i++) {
+          const { lang, text } = langsToProof[i];
+          if (loadTxt) loadTxt.textContent = `${lang}… (${i+1}/${langsToProof.length})`;
+
+          // Switch to this tab visually
+          tabBar.querySelectorAll('.result-tab').forEach((t, ti) => {
+            t.className = 'result-tab' + (ti === i ? ' active' : '');
+          });
+          document.getElementById('proofInput').value = text;
+
+          const full = await streamProofread(text);
+          lastFull = full;
+          proofResults[lang] = parseProofTable(full);
         }
+
+        // Show result for last language; all tabs are now proofread
+        lastProofOutput = lastFull;
+        stopProofAnim();
+        loader.className = 'hx-loading';
+        output.style.display = '';
+        renderMarkdown(output, lastFull);
+        output.scrollTop = 0;
+        document.getElementById('proofExportBar').className = 'export-bar visible';
+        updateCombinedSection();
       }
-      stopProofAnim();
-      loader.className = 'hx-loading';
-      output.style.display = '';
-      lastProofOutput = full;
-      // Store per-language result and update combined section
-      const activeLang = getActiveProofLang() || 'Text';
-      proofResults[activeLang] = parseProofTable(full);
-      updateCombinedSection();
-      renderMarkdown(output, full);
-      output.scrollTop = 0;
-      document.getElementById('proofExportBar').className = 'export-bar visible';
     } catch (e) {
       stopProofAnim();
       loader.className = 'hx-loading';
