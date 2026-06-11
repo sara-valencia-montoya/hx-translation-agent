@@ -621,6 +621,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .proof-body textarea:focus { border-color: rgba(247,168,0,0.4); }
   .proof-controls { display: flex; gap: 10px; align-items: center; }
 
+  /* Combined results */
+  .combined-section {
+    border: 1px solid rgba(247,168,0,0.25); border-radius: var(--radius);
+    background: rgba(247,168,0,0.03); flex-shrink: 0; overflow: hidden;
+  }
+  .combined-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid rgba(247,168,0,0.15);
+  }
+
   /* Make right panel scrollable to fit proofreader */
   .panel { overflow-y: auto; }
 
@@ -910,6 +920,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <button class="export-btn" onclick="exportProofCSV()">⬇ CSV</button>
         </div>
       </div>
+    </div>
+
+    <!-- Combined results section -->
+    <div class="combined-section" id="combinedSection" style="display:none">
+      <div class="combined-header">
+        <span class="proof-title">Combined results</span>
+        <button class="export-btn" id="btnCombinedCopy" onclick="copyCombinedTSV()">📋 Copy as TSV</button>
+      </div>
+      <div class="output-box" id="combinedOutput"></div>
     </div>
 
     <div class="hx-loading" id="hxLoading">
@@ -1229,6 +1248,69 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let lastProofOutput = '';
   let _proofRAF = null, _proofWordTimer = null, _proofDirTimer = null;
   let proofLangs = []; // [{lang, text}] when multi-language
+  let proofResults = {}; // {lang: [{field, original, improved}]}
+
+  function parseProofTable(raw) {
+    const improved = extractImprovedVersion(raw);
+    const lines = improved.split('\\n');
+    const rows = [];
+    let headerSkipped = false;
+    for (const line of lines) {
+      const tr = line.trim();
+      if (!tr.startsWith('|')) continue;
+      if (tr.match(/^\\|[-| :]+\\|$/)) continue;
+      const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1'));
+      if (!headerSkipped) { headerSkipped = true; continue; }
+      if (cells.length >= 3) rows.push({ field: cells[0], original: cells[1], improved: cells[2] });
+      else if (cells.length === 2) rows.push({ field: cells[0], original: '', improved: cells[1] });
+    }
+    return rows;
+  }
+
+  function updateCombinedSection() {
+    const langs = Object.keys(proofResults);
+    if (langs.length < 2) { document.getElementById('combinedSection').style.display = 'none'; return; }
+
+    const firstRows = proofResults[langs[0]];
+    if (!firstRows || !firstRows.length) return;
+
+    // Build combined markdown table
+    let mdTable = '| Field | Source |' + langs.map(l => ` ${l} |`).join('') + '\\n';
+    mdTable += '|---|---|' + langs.map(() => '---|').join('') + '\\n';
+
+    firstRows.forEach((row, i) => {
+      let line = `| ${row.field} | ${row.original} |`;
+      langs.forEach(l => {
+        const r = proofResults[l]?.[i];
+        line += ` ${r ? r.improved : ''} |`;
+      });
+      mdTable += line + '\\n';
+    });
+
+    const section = document.getElementById('combinedSection');
+    const output = document.getElementById('combinedOutput');
+    section.style.display = '';
+    renderMarkdown(output, mdTable);
+  }
+
+  function copyCombinedTSV() {
+    const langs = Object.keys(proofResults);
+    if (!langs.length) return;
+    const firstRows = proofResults[langs[0]];
+    const header = ['Field', 'Source', ...langs].join('\\t');
+    const rows = firstRows.map((row, i) => {
+      const cols = [row.field, row.original, ...langs.map(l => proofResults[l]?.[i]?.improved || '')];
+      return cols.join('\\t');
+    });
+    const tsv = [header, ...rows].join('\\n');
+    navigator.clipboard.writeText(tsv).then(() => {
+      const btn = document.getElementById('btnCombinedCopy');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      btn.className = 'export-btn success';
+      setTimeout(() => { btn.textContent = orig; btn.className = 'export-btn'; }, 2000);
+    });
+  }
 
   function extractTranslatedTextLabeled(raw) {
     // Like extractTranslatedText but keeps "Label: text" format for proofreader context
@@ -1311,6 +1393,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('proofInput').style.display = '';
     proofLangs = [];
     lastProofOutput = '';
+    proofResults = {};
+    document.getElementById('combinedSection').style.display = 'none';
   }
 
   function startProofAnim() {
@@ -1380,6 +1464,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       loader.className = 'hx-loading';
       output.style.display = '';
       lastProofOutput = full;
+      // Store per-language result and update combined section
+      const activeLang = getActiveProofLang() || 'Text';
+      proofResults[activeLang] = parseProofTable(full);
+      updateCombinedSection();
       renderMarkdown(output, full);
       output.scrollTop = 0;
       document.getElementById('proofExportBar').className = 'export-bar visible';
