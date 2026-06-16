@@ -391,6 +391,139 @@ If the content is Product/UI copy: act as a UX content assistant. Be an expert i
 If something is ambiguous (channel, audience, intent): state your best assumption and proceed. Do not ask for clarification unless absolutely necessary.
 """
 
+GLOSSARY_TABLE = """
+
+## Glossaire officiel HomeExchange — EN / FR / ES (source canonique : Translation glossary database)
+
+Cette table est la source de vérité. Pour tout terme du texte source qui y figure, reprendre la traduction approuvée au caractère près (accents, casse, espaces, ponctuation) — ne jamais reformuler ni "améliorer" un terme déjà listé ici.
+
+| Contexte | EN | FR | ES |
+|---|---|---|---|
+| Concept | home exchange / home swapping | échange de maisons | intercambio de casas // intercambios de casa |
+| Payment page | Pay {{price}} | Payer {{price}} | Pagar {{price}} |
+| Membership > to payment page [imperative] | Pay for my membership | Payez votre adhésion | Paga tu suscripción |
+| Membership CTA > to payment page | Pay for my membership | Payer mon adhésion | Pagar mi suscripción |
+| Membership CTA > to payment page | Pay for your membership | Payer votre adhésion | Pagar la suscripción |
+| Membership CTA > to payment page | Start my membership | Prendre mon adhésion | Activar mi suscripción |
+| Membership CTA > to payment page | Start your membership | Prendre votre adhésion | Activar la suscripción |
+| Membership > to payment page [imperative] | Start your membership | Prenez votre adhésion | Activa la suscripción |
+| Membership CTA > to payment page | Renew my membership | Renouveler mon adhésion | Renovar mi suscripción |
+| Membership > to payment page [imperative] | Renew your membership | Renouvelez votre adhésion | Renova tu suscripción |
+| Membership CTA > to My Plan page | Join the community | Rejoindre la communauté | Únete a la comunidad |
+| Membership CTA > to My Plan page | Become a member | Devenir membre | Hazte miembro |
+| When people leave reviews about their exchange | Reviews | Avis | Comentarios |
+| Review CTA | Rate your exchange | Noter votre échange / Noter cet échange | Valora tu intercambio / Valorar intercambio |
+| Teams | Member Support / Member Support Team | service membres | Servicio de Asistencia |
+| Teams | Marketing team | équipe Marketing | equipo de marketing |
+| Teams | Product team | équipe Produit | equipo de producto |
+| Teams | Team of developers / dev team | équipe développement /nos développeurs | equipo de desarrollo/ desarrolladores |
+| Teams | Communication team | équipe communication | equipo de comunicación |
+| Teams | HR team / Human Resources | équipe RH / équipe ressources humaines | equipo de RRHH |
+| Teams | The HomeExchange Team | L'équipe HomeExchange | El equipo de HomeExchange |
+| About payment | Payment method | moyen de paiement | Forma de pago |
+| First step of registering | Sign up, create your home listing / Sign up, create your listing | Inscrivez-vous, créez votre annonce | Regístrate, crea tu anuncio |
+| Validity of the membership | Membership valid for 1-year | Adhésion valable un an | Suscripción válida durante 1 año |
+| Finalization | Finalize my exchange | Finaliser mon échange | Registrar intercambio |
+| Hostellerie concept | Nights | Nuitées | Noches / Noches de intercambio |
+| GuestPoints exchange | GuestPoints exchange | échange contre GuestPoints | Intercambio con GuestPoints |
+| HomeExchange guarantees | This exchange is covered by our HomeExchange guarantees. | Cet échange est couvert par les garanties HomeExchange / nos garanties. / | Este intercambio está cubierto por el servicio HomeExchange. |
+| HomeExchange guarantees | Our guarantees | Nos garanties | Nuestras garantías |
+| HomeExchange guarantees | Organize your vacations with peace of mind / HomeExchange guarantees protect your exchanges and your home. | Organisez vos vacances en toute sérénité / Les garanties HomeExchange protègent vos échanges et votre logement. | Planifica tus vacaciones con total tranquilidad / Las garantías de HomeExchange cubren todos tus intercambios en caso de cancelación. |
+| Deposit | Deposit | Caution | Fianza |
+| Referral program | Refer / Invite your friends | Parrainez vos proches / ami·e·s | Invita a tus amigos |
+| Referral program | Referral program | Programme de parrainage | Programa de invitar amigos |
+| Ambassadors KEEP THE CAP | (HomeExchange) Ambassadors | Ambassadeurs et Ambassadrices (HomeExchange) | embajadores (o embajadores y embajadoras, si es un saludo) |
+| Our customers (NEVER use the words customers/users/clients - no caps to those words) | member / members | membre / membres | miembro / miembros |
+| Our customers (NEVER use the words customers/users/clients - no caps to those words) | guest / guests | invité·e / invité·e·s | invitado/a / invitados |
+| Our customers (NEVER use the words customers/users/clients - no caps to those words) | host / hosts | hôte / hôte | anfitrión/a / anfitriones |
+| Our customers (NEVER use the words customers/users/clients - no caps to those words) | exchange partner | partenaire d'échange | compañero/a de intercambio |
+| New member | New member | Nouveau·elle membre | Miembro nuevo |
+| Person who has signed up but hasn't subscribed to the membership yet | Newcomer | Inscrit·e | Usuario registrado |
+| Loyalty benefits | Loyalty benefits | Avantages fidélité | Beneficios de fidelidad |
+| LOYALTY BADGE | Loyalty badge | Badge fidélité | Insignia de fidelidad |
+| LOYALTY PRICE | Reduced loyalty price | Prix réduit fidélité | Tarifa reducida de fidelidad |
+| LOYALTY PRICE | Loyalty price | Prix fidélité | Tarifa de fidelidad |
+| GP bonus | 250 GuestPoints bonus | Bonus de 250 GuestPoints | 250 GuestPoints de regalo |
+| Home Manual | Home manual | Guide de maison | Manual de la casa |
+| Sponsor Badge | Referral badge | badge Parrain | insignia de Apadrinamiento |
+| Sponsor | Referer | Parrain / Marraine | persona/amigo/a que te invitó a HomeExchange |
+| Sponsored person | Referee | Filleul·e | Amigos invitados (hacer referencia a que son amigos que han sido invitados por ti a HE) |
+| Referral code | referral code | code de parrainage | código de invitación |
+| Hospitality exchange | Private room exchange | Echange en chambre privée | Intercambio de habitación |
+| Our product / The product NEVER SPEAK OF THE PRODUCT AS IT MAKES NO SENSE FOR PEOPLE | Our website / | Notre site | Nuestra/La página web |
+| Our product / The product NEVER SPEAK OF THE PRODUCT AS IT MAKES NO SENSE FOR PEOPLE | Our platform | Notre plateforme | Nuestra/La plataforma |
+| Our product / The product NEVER SPEAK OF THE PRODUCT AS IT MAKES NO SENSE FOR PEOPLE | The website and the app | Le site et l'application / l'app | La página web y la aplicación |
+| Promo code / WE DONT'T USE PROMO CODE AS IT HAS A CHEAP CONNOTATION: we will ONLY USE "promo code" on the payment page in product | Special code | Code spécial | Código regalo |
+| Name of the sales team for members | Exchange expert | spécialiste des échanges | especialistas en intercambios |
+| Calendar filters | Any type | Tout type | Disponible para cualquier intercambio |
+| Calendar filters | Reciprocal Exchange | Echange réciproque | Intercambio recíproco |
+| Calendar filters | GuestPoints Exchange | Contre GuestPoints | Intercambio con GuestPoints |
+| CTA for page my Home | View the home listing | Voir l'annonce | Ver anuncio |
+| Block "My home" with info and link to the public home page | Completion | Complété à | Completo al |
+| Block "My home" with info and link to the public home page | Home ID | ID de la maison | Nº de anuncio |
+| Block "My home" with info and link to the public home page | Home published | Maison en ligne | Casa publicada |
+| Verification | Verification | Vérification | Verificación |
+| Document that proves that they live in the home | Proof of address | Jutificatif de domicile | Comprobante de dirección |
+| Document that proves their identity | Proof of identity | Justificatif d'identité | Comprobante de identidad |
+| Travelers feature | Travelers | Voyageurs | Grupo de viajeros |
+| Travelers feature | Create my traveling group | Créer mon groupe de voyageurs | Crear mi grupo de viajeros |
+| Type of residence | Primary residence | Résidence principale | Residencia principal |
+| Type of residence | Secondary residence | Résidence secondaire | Segunda residencia |
+| Surrounding tags (it's a feature: "tags" that you can select in your home profile to describe the surroundings of your home: are you in the mountains or near a lake/the sea/etc.) | Close surroundings | Environnement direct | Entorno cercano |
+| Surrounding tags | Criteria for describing the immediate surroundings of your home | Critères pour décrire l'environnement direct de votre logement |  |
+| Surrounding tags | Countryside | Campagne | Campo |
+| Surrounding tags | Mountains | Montagne | Montaña |
+| Surrounding tags | Coastal | Bord de mer | Litoral |
+| Surrounding tags | Lakes | Lac | Lago |
+| Surrounding tags | City | Ville | Ciudad |
+| Surrounding tags | Village | Village | Pueblo |
+| Surrounding tags | Isolated | Isolé | Aislado |
+| Surrounding tags | Island | Île | Isla |
+| Surrounding tags | River | Rivière | Río |
+| Private room | private room | chambre privée | habitación privada |
+| Welcome GuestPoints | welcome GuestPoints | GuestPoints de bienvenue | GuestPoints de bienvenida |
+| Auto decline | Automatic decline | refus automatique | Rechazo automático |
+| Auto decline | Automatically declined | Déclinée automatiquement | Rechazada automáticamente |
+| Auto decline | Declined exchanges | Demandes déclinées | Intercambios rechazados |
+| Auto decline | This exchange request was automatically declined. | Cette demande d'échange a été déclinée automatiquement. | Esta solicitud de intercambio se ha rechazado automáticamente. |
+| Flexible search feature | Flexible dates filter | Filtre "dates flexibles" | Filtro "fechas flexibles" |
+| Type of exchange filters | Any type of exchange | Tout type d'échange | Cualquier tipo de intercamboo |
+| Type of exchange filters | GuestPoints exchange | Echange contre GuestPoints | Intercambio con GuestPoints |
+| Type of exchange filters | Reciprocal exchange | Echange réciproque | Intercambio recíproco |
+| Reverse search feature | Reverse search | Recherche inversée | Búsqueda inversa |
+| More filters | Quality | Qualité | Calidad |
+| More filters | Verified homes | Maisons vérifiées | Casas verificadas |
+| More filters | Homes with pictures | Maisons avec photos | Casas con fotos |
+| More filters | Response rate >80% | Taux de réponse > 80% | Tasa de respuesta > 80% |
+| More filters | GuestPoints / night | GuestPoints / nuit | GuestPoints / noche |
+| More filters | Type of accommodation | Type de logement | Tipo de alojamiento |
+| More filters | House | Maison | Casa |
+| More filters | Apartment | Appartement | Piso |
+| More filters | Residence | Résidence | Vivienda |
+| More filters | Primary | Principale | Principal |
+| More filters | Secondary | Secondaire | Secundaria |
+| More filters | Size | Taille | Tamaño |
+| More filters | Bedrooms | Chambres | Dormitorios |
+| More filters | Bathrooms | Salles de bain | Cuartos de baños |
+| More filters | No temporary beds | Pas de lits d'appoint | No hay camas supletorias |
+| More filters | Amenities | Équipements | Comodidades |
+| More filters | Accessibility | Accessibilité | Accesibilidad |
+| More filters | Disabled access | Accès personnes à mobilité réduite | Acceso para personas con movilidad reducida |
+| More filters | Last minute | Dernière minute | Último minuto |
+| Cleaning fees | Cleaning fees | Frais de ménage | Gastos de limpieza |
+| Terms of Use | Violation |  | incumplimiento |
+| Favorite folders | Favorite folder | Dossier de favoris | Carpeta de favoritos |
+| Response rate | Response rate | Réactivité / Niveau de réactivité | tasa de respuesta |
+| Travel wishlist | Travel wishlist | Projets de voyage | Proyectos de viaje |
+| Charter members can "sign" to pledge they agree with responsible travel | Responsible travel pledge | Charte de voyage responsable | Carta de compromiso para viajar de manera consciente |
+| HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days |
+| (only used on HomeExchange Days) | meetup | rencontre | encuentro |
+|  | The Pets Corner | Le Coin des Animaux | El Rincón de las Mascotas |
+"""
+
+SYSTEM_PROMPT += GLOSSARY_TABLE
+PROOFREADER_PROMPT += GLOSSARY_TABLE
+
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -623,7 +756,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   /* Results table FAB button */
   .results-fab {
-    position: fixed; top: 16px; right: 16px; z-index: 200;
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
     background: var(--accent); color: #1a1200;
     border: none; border-radius: 100px;
     font-size: 13px; font-weight: 700; padding: 9px 18px;
@@ -1290,6 +1423,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let _proofRAF = null, _proofWordTimer = null, _proofDirTimer = null;
   let proofLangs = []; // [{lang, text}] when multi-language
   let proofResults = {}; // {lang: [{field, original, improved}]}
+  let translationSourceRows = []; // [{field, source}] — original source text per field
 
   function parseProofTable(raw) {
     const improved = extractImprovedVersion(raw);
@@ -1320,7 +1454,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     mdTable += '|---|---|' + langs.map(() => '---|').join('') + '\\n';
 
     firstRows.forEach((row, i) => {
-      let line = '| ' + row.field + ' | ' + row.original + ' |';
+      const srcText = translationSourceRows[i]?.source ?? row.original;
+      let line = '| ' + row.field + ' | ' + srcText + ' |';
       langs.forEach(l => {
         const r = proofResults[l]?.[i];
         line += ' ' + (r ? r.improved : '') + ' |';
@@ -1349,7 +1484,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const firstRows = proofResults[langs[0]];
     const header = ['Field', 'Source', ...langs].join('\\t');
     const rows = firstRows.map((row, i) => {
-      const cols = [row.field, row.original, ...langs.map(l => proofResults[l]?.[i]?.improved || '')];
+      const srcText = translationSourceRows[i]?.source ?? row.original;
+      const cols = [row.field, srcText, ...langs.map(l => proofResults[l]?.[i]?.improved || '')];
       return cols.join('\\t');
     });
     const tsv = [header, ...rows].join('\\n');
@@ -1384,12 +1520,36 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return parts.length > 0 ? parts.join('\\n') : extractTranslatedText(raw);
   }
 
+  function extractSourceColumn(raw) {
+    // Extract the source column (col 1) from the translator's output table: | Field | Source | Target |
+    const lines = raw.split('\\n');
+    const rows = [];
+    let headerSkipped = false;
+    for (const line of lines) {
+      const tr = line.trim();
+      if (!tr.startsWith('|')) continue;
+      if (tr.match(/^\\|[-| :]+\\|$/)) continue;
+      const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1'));
+      if (!headerSkipped) { headerSkipped = true; continue; }
+      if (cells.length < 2) continue;
+      const label = cells[0];
+      const source = cells[1];
+      const metaLabels = ['note','meta','type','source lang','target lang','source language','target language'];
+      if (metaLabels.includes(label.toLowerCase())) continue;
+      if (!source || source === '' || source.startsWith('[') || /^[✅❌⚠️🔴🟡🟢]/.test(source)) continue;
+      rows.push({ field: label, source });
+    }
+    return rows;
+  }
+
   function buildProofTabs(results) {
     const tabBar  = document.getElementById('proofTabs');
     const textarea = document.getElementById('proofInput');
     proofLangs = results.map(({ lang, result }) => ({
       lang, text: extractTranslatedTextLabeled(result)  // keep labels for table output
     }));
+    // Capture original source text from the first translation result for the combined table
+    translationSourceRows = results.length > 0 ? extractSourceColumn(results[0].result) : [];
 
     if (proofLangs.length <= 1) {
       // Single language — use plain textarea, no tabs
