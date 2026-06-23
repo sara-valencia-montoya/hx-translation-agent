@@ -194,6 +194,7 @@ Ces règles sont le résultat de corrections validées. Les appliquer systémati
 - **[ES] City modules** : "con intercambio de casas" → "con el intercambio de casas". "Descubre las casas en {Ciudad}" → "Descubre casas en {Ciudad}".
 - **[ES] Relecture** : Toujours appliquer la relecture IA critique sur chaque langue cible traduite, pas uniquement sur le source.
 - **[FR] CTA adhésion** : Éviter "Souscrire" (connotation bancaire). Préférer "Démarrer mon adhésion".
+- **[ES] "finalize [an/my/the/your] exchange"** : Toujours traduire par "registrar intercambio" — jamais "cerrar", "confirmar", "completar" ni aucune autre formulation. La forme varie (finalize an / my / the / your exchange) mais la traduction ES est toujours "registrar intercambio".
 
 ## Règles de localisation des URLs
 
@@ -1430,9 +1431,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const lines = improved.split('\\n');
     const rows = [];
     let headerSkipped = false;
+    let tableStarted = false;
     for (const line of lines) {
       const tr = line.trim();
-      if (!tr.startsWith('|')) continue;
+      if (!tr.startsWith('|')) {
+        if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
+        continue;
+      }
+      tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
       const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1'));
       if (!headerSkipped) { headerSkipped = true; continue; }
@@ -1503,9 +1509,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const lines = raw.split('\\n');
     const parts = [];
     let headerSkipped = false;
+    let tableStarted = false;
     for (const line of lines) {
       const tr = line.trim();
-      if (!tr.startsWith('|')) continue;
+      if (!tr.startsWith('|')) {
+        if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
+        continue;
+      }
+      tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
       const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1'));
       if (!headerSkipped) { headerSkipped = true; continue; }
@@ -1525,9 +1536,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const lines = raw.split('\\n');
     const rows = [];
     let headerSkipped = false;
+    let tableStarted = false;
     for (const line of lines) {
       const tr = line.trim();
-      if (!tr.startsWith('|')) continue;
+      if (!tr.startsWith('|')) {
+        if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
+        continue;
+      }
+      tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
       const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1'));
       if (!headerSkipped) { headerSkipped = true; continue; }
