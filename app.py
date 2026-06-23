@@ -1,11 +1,13 @@
 import os
 import json
 import secrets
+from urllib.parse import urlencode
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import anthropic
+import httpx
 from dotenv import load_dotenv
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
@@ -14,11 +16,14 @@ load_dotenv()
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-ALLOWED_DOMAIN  = "homeexchange.com"
-_raw_emails     = os.getenv("ALLOWED_EMAILS", "")
-ALLOWED_EMAILS  = {e.strip().lower() for e in _raw_emails.split(",") if e.strip()}
-SESSION_COOKIE  = "hx_auth"
-SESSION_SECRET  = os.getenv("SESSION_SECRET", secrets.token_hex(32))
+ALLOWED_DOMAIN        = "homeexchange.com"
+_raw_emails           = os.getenv("ALLOWED_EMAILS", "")
+ALLOWED_EMAILS        = {e.strip().lower() for e in _raw_emails.split(",") if e.strip()}
+SESSION_COOKIE        = "hx_auth"
+SESSION_SECRET        = os.getenv("SESSION_SECRET", secrets.token_hex(32))
+GOOGLE_CLIENT_ID      = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET  = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI   = os.getenv("GOOGLE_REDIRECT_URI", "")
 signer = URLSafeTimedSerializer(SESSION_SECRET)
 
 def get_session(request: Request):
@@ -32,7 +37,7 @@ def get_session(request: Request):
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
-    public = {"/login", "/login/check"}
+    public = {"/login", "/login/check", "/auth/google", "/auth/callback"}
     if request.url.path in public:
         return await call_next(request)
     if not get_session(request):
@@ -62,20 +67,14 @@ LOGIN_PAGE = """<!DOCTYPE html>
   .brand span { color: #8b97a8; font-weight: 400; }
   h2 { font-size: 22px; font-weight: 700; line-height: 1.3; }
   p { color: #8b97a8; font-size: 14px; line-height: 1.6; }
-  .field { display: flex; flex-direction: column; gap: 8px; }
-  label { font-size: 13px; color: #8b97a8; font-weight: 500; }
-  input[type=email] {
-    background: #0f1117; border: 1px solid #2a2d3a; border-radius: 10px;
-    color: #e8edf3; font-size: 15px; padding: 12px 16px; outline: none;
-    transition: border-color 0.15s; width: 100%;
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    background: #fff; color: #1f1f1f; border: none; border-radius: 100px;
+    font-size: 15px; font-weight: 600; padding: 13px 24px; cursor: pointer;
+    transition: background 0.15s; width: 100%; text-decoration: none;
   }
-  input[type=email]:focus { border-color: rgba(247,168,0,0.5); }
-  button {
-    background: #F7A800; color: #1a1200; border: none; border-radius: 100px;
-    font-size: 15px; font-weight: 700; padding: 13px 24px; cursor: pointer;
-    transition: background 0.15s; width: 100%;
-  }
-  button:hover { background: #ffc53d; }
+  .google-btn:hover { background: #f0f0f0; }
+  .google-btn svg { flex-shrink: 0; }
   .error {
     background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3);
     border-radius: 8px; padding: 12px 16px; color: #f87171; font-size: 14px;
@@ -91,14 +90,11 @@ LOGIN_PAGE = """<!DOCTYPE html>
     <h2>Sign in to continue</h2>
     <p style="margin-top:8px">This tool is reserved for HomeExchange team members.</p>
   </div>
-  <form method="POST" action="/login/check">
-    <div class="field">
-      <label>Work email</label>
-      <input type="email" name="email" placeholder="you@homeexchange.com" required autofocus/>
-    </div>
-    <div class="error {error_class}" id="err">{error_msg}</div>
-    <button type="submit" style="margin-top:20px">Continue</button>
-  </form>
+  <div class="error {error_class}">{error_msg}</div>
+  <a href="/auth/google" class="google-btn">
+    <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+    Sign in with Google
+  </a>
 </div>
 </body>
 </html>"""
@@ -107,19 +103,45 @@ LOGIN_PAGE = """<!DOCTYPE html>
 def login_page(error: str = ""):
     if error == "domain":
         html = LOGIN_PAGE.replace("{error_class}", "visible").replace(
-            "{error_msg}", "Only @homeexchange.com email addresses are allowed.")
-    elif error == "invalid":
-        html = LOGIN_PAGE.replace("{error_class}", "visible").replace(
-            "{error_msg}", "Please enter a valid email address.")
+            "{error_msg}", "Access restricted to authorised HomeExchange accounts.")
     else:
         html = LOGIN_PAGE.replace("{error_class}", "").replace("{error_msg}", "")
     return html
 
-@app.post("/login/check")
-async def login_check(request: Request, email: str = Form(...)):
-    email = email.strip().lower()
-    if "@" not in email:
-        return RedirectResponse("/login?error=invalid", status_code=303)
+@app.get("/auth/google")
+def auth_google():
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email",
+        "hd": ALLOWED_DOMAIN,  # hints Google to show only @homeexchange.com accounts
+        "access_type": "online",
+    }
+    url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
+    return RedirectResponse(url)
+
+@app.get("/auth/callback")
+async def auth_callback(code: str = None, error: str = None):
+    if error or not code:
+        return RedirectResponse("/login?error=domain", status_code=303)
+    async with httpx.AsyncClient() as client:
+        token_resp = await client.post("https://oauth2.googleapis.com/token", data={
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": GOOGLE_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        })
+        token_data = token_resp.json()
+        access_token = token_data.get("access_token")
+        if not access_token:
+            return RedirectResponse("/login?error=domain", status_code=303)
+        user_resp = await client.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        email = user_resp.json().get("email", "").strip().lower()
     if not email.endswith(f"@{ALLOWED_DOMAIN}"):
         return RedirectResponse("/login?error=domain", status_code=303)
     if ALLOWED_EMAILS and email not in ALLOWED_EMAILS:
