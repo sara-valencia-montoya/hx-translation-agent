@@ -14,7 +14,9 @@ load_dotenv()
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-ALLOWED_DOMAIN = "homeexchange.com"
+ALLOWED_DOMAIN  = "homeexchange.com"
+_raw_emails     = os.getenv("ALLOWED_EMAILS", "")
+ALLOWED_EMAILS  = {e.strip().lower() for e in _raw_emails.split(",") if e.strip()}
 SESSION_COOKIE  = "hx_auth"
 SESSION_SECRET  = os.getenv("SESSION_SECRET", secrets.token_hex(32))
 signer = URLSafeTimedSerializer(SESSION_SECRET)
@@ -119,6 +121,8 @@ async def login_check(request: Request, email: str = Form(...)):
     if "@" not in email:
         return RedirectResponse("/login?error=invalid", status_code=303)
     if not email.endswith(f"@{ALLOWED_DOMAIN}"):
+        return RedirectResponse("/login?error=domain", status_code=303)
+    if ALLOWED_EMAILS and email not in ALLOWED_EMAILS:
         return RedirectResponse("/login?error=domain", status_code=303)
     token = signer.dumps({"email": email})
     resp = RedirectResponse("/", status_code=303)
