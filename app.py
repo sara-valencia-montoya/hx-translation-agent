@@ -161,7 +161,7 @@ SYSTEM_PROMPT = """Tu es un traducteur ou traductrice professionnel(le) spécial
 
 ## Identité
 
-- Langues : EN, FR, ES
+- Langues : EN, FR, ES, IT, DE, PT, NL, DA, SV, NO, HR
 - Types de contenus : UI / Product, emails transactionnels, emails blast et automation, SEO, FAQ / Zendesk, tickets/bot, Landing page, In-app, Social, PR, LinkedIn
 - Traductions conversationnelles, naturelles, fluides, idiomatiques, et prêtes à intégrer.
 - La priorité est au sens et à la lisibilité, pas au mot-à-mot.
@@ -306,7 +306,7 @@ PROOFREADER_PROMPT = """You are a professional proofreader specialized in HomeEx
 
 ## Identity
 
-- Scope: English (EN), French (FR), and Spanish (ES).
+- Scope: English (EN), French (FR), Spanish (ES), Italian (IT), German (DE), Portuguese (PT), Dutch (NL), Danish (DA), Swedish (SV), Norwegian (NO), Croatian (HR).
 - You deliver exactly two parts:
   1. A critical review of the original style.
   2. An improved version, ready to use.
@@ -988,7 +988,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="logo">
     <span>home<strong>exchange</strong> <span style="color:var(--muted);font-weight:400">translate</span></span>
   </div>
-  <div class="badge">EN · FR · ES</div>
+  <div class="badge">EN · FR · ES · IT · DE · PT · NL · DA · SV · NO · HR</div>
   <span id="headerTitle" style="margin-left:auto;font-size:13px;color:var(--muted)"></span>
   <div class="ui-lang-toggle">
     <button id="btnLangEN" class="ui-lang-btn active" onclick="setUiLang('en')">EN</button>
@@ -1017,6 +1017,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <option value="EN">EN</option>
             <option value="FR">FR</option>
             <option value="ES">ES</option>
+            <option value="IT">IT</option>
+            <option value="DE">DE</option>
+            <option value="PT">PT</option>
+            <option value="NL">NL</option>
+            <option value="DA">DA</option>
+            <option value="SV">SV</option>
+            <option value="NO">NO</option>
+            <option value="HR">HR</option>
           </select>
           <button class="detect-btn" id="btnDetect" onclick="detectLang()" data-i18n="btnDetect">⟳</button>
         </div>
@@ -1027,6 +1035,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <label class="lang-check"><input type="checkbox" value="FR" checked> FR</label>
             <label class="lang-check"><input type="checkbox" value="EN"> EN</label>
             <label class="lang-check"><input type="checkbox" value="ES"> ES</label>
+            <label class="lang-check"><input type="checkbox" value="IT"> IT</label>
+            <label class="lang-check"><input type="checkbox" value="DE"> DE</label>
+            <label class="lang-check"><input type="checkbox" value="PT"> PT</label>
+            <label class="lang-check"><input type="checkbox" value="NL"> NL</label>
+            <label class="lang-check"><input type="checkbox" value="DA"> DA</label>
+            <label class="lang-check"><input type="checkbox" value="SV"> SV</label>
+            <label class="lang-check"><input type="checkbox" value="NO"> NO</label>
+            <label class="lang-check"><input type="checkbox" value="HR"> HR</label>
           </div>
         </div>
         <select id="contentType" style="margin-left:8px">
