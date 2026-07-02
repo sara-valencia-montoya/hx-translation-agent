@@ -420,132 +420,131 @@ If something is ambiguous (channel, audience, intent): state your best assumptio
 
 GLOSSARY_TABLE = """
 
-## Glossaire officiel HomeExchange — EN / FR / ES (source canonique : Translation glossary database)
+## Glossaire officiel HomeExchange — EN / FR / ES / DE / IT / PT / NL / HR / DA / NO / SV (source canonique : Translation glossary database)
 
 Cette table est la source de vérité. Pour tout terme du texte source qui y figure, reprendre la traduction approuvée au caractère près (accents, casse, espaces, ponctuation) — ne jamais reformuler ni "améliorer" un terme déjà listé ici.
 
-| Contexte | EN | FR | ES |
-|---|---|---|---|
-| Concept | home exchange / home swapping | échange de maisons | intercambio de casas // intercambios de casa |
-| Payment page | Pay {{price}} | Payer {{price}} | Pagar {{price}} |
-| Membership > to payment page [imperative] | Pay for my membership | Payez votre adhésion | Paga tu suscripción |
-| Membership CTA > to payment page | Pay for my membership | Payer mon adhésion | Pagar mi suscripción |
-| Membership CTA > to payment page | Pay for your membership | Payer votre adhésion | Pagar la suscripción |
-| Membership CTA > to payment page | Start my membership | Prendre mon adhésion | Activar mi suscripción |
-| Membership CTA > to payment page | Start your membership | Prendre votre adhésion | Activar la suscripción |
-| Membership > to payment page [imperative] | Start your membership | Prenez votre adhésion | Activa la suscripción |
-| Membership CTA > to payment page | Renew my membership | Renouveler mon adhésion | Renovar mi suscripción |
-| Membership > to payment page [imperative] | Renew your membership | Renouvelez votre adhésion | Renova tu suscripción |
-| Membership CTA > to My Plan page | Join the community | Rejoindre la communauté | Únete a la comunidad |
-| Membership CTA > to My Plan page | Become a member | Devenir membre | Hazte miembro |
-| When people leave reviews about their exchange | Reviews | Avis | Comentarios |
-| Review CTA | Rate your exchange | Noter votre échange / Noter cet échange | Valora tu intercambio / Valorar intercambio |
-| Teams | Member Support / Member Support Team | service membres | Servicio de Asistencia |
-| Teams | Marketing team | équipe Marketing | equipo de marketing |
-| Teams | Product team | équipe Produit | equipo de producto |
-| Teams | Team of developers / dev team | équipe développement /nos développeurs | equipo de desarrollo/ desarrolladores |
-| Teams | Communication team | équipe communication | equipo de comunicación |
-| Teams | HR team / Human Resources | équipe RH / équipe ressources humaines | equipo de RRHH |
-| Teams | The HomeExchange Team | L'équipe HomeExchange | El equipo de HomeExchange |
-| About payment | Payment method | moyen de paiement | Forma de pago |
-| First step of registering | Sign up, create your home listing / Sign up, create your listing | Inscrivez-vous, créez votre annonce | Regístrate, crea tu anuncio |
-| Validity of the membership | Membership valid for 1-year | Adhésion valable un an | Suscripción válida durante 1 año |
-| Finalization | Finalize my exchange | Finaliser mon échange | Registrar intercambio |
-| Hostellerie concept | Nights | Nuitées | Noches / Noches de intercambio |
-| GuestPoints exchange | GuestPoints exchange | échange contre GuestPoints | Intercambio con GuestPoints |
-| HomeExchange guarantees | This exchange is covered by our HomeExchange guarantees. | Cet échange est couvert par les garanties HomeExchange / nos garanties. / | Este intercambio está cubierto por el servicio HomeExchange. |
-| HomeExchange guarantees | Our guarantees | Nos garanties | Nuestras garantías |
-| HomeExchange guarantees | Organize your vacations with peace of mind / HomeExchange guarantees protect your exchanges and your home. | Organisez vos vacances en toute sérénité / Les garanties HomeExchange protègent vos échanges et votre logement. | Planifica tus vacaciones con total tranquilidad / Las garantías de HomeExchange cubren todos tus intercambios en caso de cancelación. |
-| Deposit | Deposit | Caution | Fianza |
-| Referral program | Refer / Invite your friends | Parrainez vos proches / ami·e·s | Invita a tus amigos |
-| Referral program | Referral program | Programme de parrainage | Programa de invitar amigos |
-| Ambassadors KEEP THE CAP | (HomeExchange) Ambassadors | Ambassadeurs et Ambassadrices (HomeExchange) | embajadores (o embajadores y embajadoras, si es un saludo) |
-| Our customers (NEVER use the words customers/users/clients - no caps to those words) | member / members | membre / membres | miembro / miembros |
-| Our customers (NEVER use the words customers/users/clients - no caps to those words) | guest / guests | invité·e / invité·e·s | invitado/a / invitados |
-| Our customers (NEVER use the words customers/users/clients - no caps to those words) | host / hosts | hôte / hôte | anfitrión/a / anfitriones |
-| Our customers (NEVER use the words customers/users/clients - no caps to those words) | exchange partner | partenaire d'échange | compañero/a de intercambio |
-| New member | New member | Nouveau·elle membre | Miembro nuevo |
-| Person who has signed up but hasn't subscribed to the membership yet | Newcomer | Inscrit·e | Usuario registrado |
-| Loyalty benefits | Loyalty benefits | Avantages fidélité | Beneficios de fidelidad |
-| LOYALTY BADGE | Loyalty badge | Badge fidélité | Insignia de fidelidad |
-| LOYALTY PRICE | Reduced loyalty price | Prix réduit fidélité | Tarifa reducida de fidelidad |
-| LOYALTY PRICE | Loyalty price | Prix fidélité | Tarifa de fidelidad |
-| GP bonus | 250 GuestPoints bonus | Bonus de 250 GuestPoints | 250 GuestPoints de regalo |
-| Home Manual | Home manual | Guide de maison | Manual de la casa |
-| Sponsor Badge | Referral badge | badge Parrain | insignia de Apadrinamiento |
-| Sponsor | Referer | Parrain / Marraine | persona/amigo/a que te invitó a HomeExchange |
-| Sponsored person | Referee | Filleul·e | Amigos invitados (hacer referencia a que son amigos que han sido invitados por ti a HE) |
-| Referral code | referral code | code de parrainage | código de invitación |
-| Hospitality exchange | Private room exchange | Echange en chambre privée | Intercambio de habitación |
-| Our product / The product NEVER SPEAK OF THE PRODUCT AS IT MAKES NO SENSE FOR PEOPLE | Our website / | Notre site | Nuestra/La página web |
-| Our product / The product NEVER SPEAK OF THE PRODUCT AS IT MAKES NO SENSE FOR PEOPLE | Our platform | Notre plateforme | Nuestra/La plataforma |
-| Our product / The product NEVER SPEAK OF THE PRODUCT AS IT MAKES NO SENSE FOR PEOPLE | The website and the app | Le site et l'application / l'app | La página web y la aplicación |
-| Promo code / WE DONT'T USE PROMO CODE AS IT HAS A CHEAP CONNOTATION: we will ONLY USE "promo code" on the payment page in product | Special code | Code spécial | Código regalo |
-| Name of the sales team for members | Exchange expert | spécialiste des échanges | especialistas en intercambios |
-| Calendar filters | Any type | Tout type | Disponible para cualquier intercambio |
-| Calendar filters | Reciprocal Exchange | Echange réciproque | Intercambio recíproco |
-| Calendar filters | GuestPoints Exchange | Contre GuestPoints | Intercambio con GuestPoints |
-| CTA for page my Home | View the home listing | Voir l'annonce | Ver anuncio |
-| Block "My home" with info and link to the public home page | Completion | Complété à | Completo al |
-| Block "My home" with info and link to the public home page | Home ID | ID de la maison | Nº de anuncio |
-| Block "My home" with info and link to the public home page | Home published | Maison en ligne | Casa publicada |
-| Verification | Verification | Vérification | Verificación |
-| Document that proves that they live in the home | Proof of address | Jutificatif de domicile | Comprobante de dirección |
-| Document that proves their identity | Proof of identity | Justificatif d'identité | Comprobante de identidad |
-| Travelers feature | Travelers | Voyageurs | Grupo de viajeros |
-| Travelers feature | Create my traveling group | Créer mon groupe de voyageurs | Crear mi grupo de viajeros |
-| Type of residence | Primary residence | Résidence principale | Residencia principal |
-| Type of residence | Secondary residence | Résidence secondaire | Segunda residencia |
-| Surrounding tags (it's a feature: "tags" that you can select in your home profile to describe the surroundings of your home: are you in the mountains or near a lake/the sea/etc.) | Close surroundings | Environnement direct | Entorno cercano |
-| Surrounding tags | Criteria for describing the immediate surroundings of your home | Critères pour décrire l'environnement direct de votre logement |  |
-| Surrounding tags | Countryside | Campagne | Campo |
-| Surrounding tags | Mountains | Montagne | Montaña |
-| Surrounding tags | Coastal | Bord de mer | Litoral |
-| Surrounding tags | Lakes | Lac | Lago |
-| Surrounding tags | City | Ville | Ciudad |
-| Surrounding tags | Village | Village | Pueblo |
-| Surrounding tags | Isolated | Isolé | Aislado |
-| Surrounding tags | Island | Île | Isla |
-| Surrounding tags | River | Rivière | Río |
-| Private room | private room | chambre privée | habitación privada |
-| Welcome GuestPoints | welcome GuestPoints | GuestPoints de bienvenue | GuestPoints de bienvenida |
-| Auto decline | Automatic decline | refus automatique | Rechazo automático |
-| Auto decline | Automatically declined | Déclinée automatiquement | Rechazada automáticamente |
-| Auto decline | Declined exchanges | Demandes déclinées | Intercambios rechazados |
-| Auto decline | This exchange request was automatically declined. | Cette demande d'échange a été déclinée automatiquement. | Esta solicitud de intercambio se ha rechazado automáticamente. |
-| Flexible search feature | Flexible dates filter | Filtre "dates flexibles" | Filtro "fechas flexibles" |
-| Type of exchange filters | Any type of exchange | Tout type d'échange | Cualquier tipo de intercamboo |
-| Type of exchange filters | GuestPoints exchange | Echange contre GuestPoints | Intercambio con GuestPoints |
-| Type of exchange filters | Reciprocal exchange | Echange réciproque | Intercambio recíproco |
-| Reverse search feature | Reverse search | Recherche inversée | Búsqueda inversa |
-| More filters | Quality | Qualité | Calidad |
-| More filters | Verified homes | Maisons vérifiées | Casas verificadas |
-| More filters | Homes with pictures | Maisons avec photos | Casas con fotos |
-| More filters | Response rate >80% | Taux de réponse > 80% | Tasa de respuesta > 80% |
-| More filters | GuestPoints / night | GuestPoints / nuit | GuestPoints / noche |
-| More filters | Type of accommodation | Type de logement | Tipo de alojamiento |
-| More filters | House | Maison | Casa |
-| More filters | Apartment | Appartement | Piso |
-| More filters | Residence | Résidence | Vivienda |
-| More filters | Primary | Principale | Principal |
-| More filters | Secondary | Secondaire | Secundaria |
-| More filters | Size | Taille | Tamaño |
-| More filters | Bedrooms | Chambres | Dormitorios |
-| More filters | Bathrooms | Salles de bain | Cuartos de baños |
-| More filters | No temporary beds | Pas de lits d'appoint | No hay camas supletorias |
-| More filters | Amenities | Équipements | Comodidades |
-| More filters | Accessibility | Accessibilité | Accesibilidad |
-| More filters | Disabled access | Accès personnes à mobilité réduite | Acceso para personas con movilidad reducida |
-| More filters | Last minute | Dernière minute | Último minuto |
-| Cleaning fees | Cleaning fees | Frais de ménage | Gastos de limpieza |
-| Terms of Use | Violation |  | incumplimiento |
-| Favorite folders | Favorite folder | Dossier de favoris | Carpeta de favoritos |
-| Response rate | Response rate | Réactivité / Niveau de réactivité | tasa de respuesta |
-| Travel wishlist | Travel wishlist | Projets de voyage | Proyectos de viaje |
-| Charter members can "sign" to pledge they agree with responsible travel | Responsible travel pledge | Charte de voyage responsable | Carta de compromiso para viajar de manera consciente |
-| HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days |
-| (only used on HomeExchange Days) | meetup | rencontre | encuentro |
-|  | The Pets Corner | Le Coin des Animaux | El Rincón de las Mascotas |
+| Contexte | EN | FR | ES | DE | IT | PT | NL | HR | DA | NO | SV |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Concept | home exchange / home swapping | échange de maisons | intercambio de casas // intercambios de casa | Haustausch | scambio casa | troca de casa | huizenruil | Zamjena domova | boligbytte | boligbytte | hembyte / hembyten |
+| Payment page | Pay {{price}} | Payer {{price}} | Pagar {{price}} | {{price}} bezahlen | Paga {{price}} | Pagar {{price}} | Betaal {{price}} | Platiti {{price}} | Betal {{price}} | Betal {{price}} | Betala {{price}} |
+| Membership > to payment page [imperative] | Pay for my membership | Payez votre adhésion | Paga tu suscripción | Meine Mitgliedschaft bezahlen | Paga l'abbonamento | Pague a sua filiação | Betaal voor mijn lidmaatschap | Platite svoju članarinu | Betal for mit medlemskab | Betal for mitt medlemskap | Betala mitt medlemskap |
+| Membership CTA > to payment page | Pay for my membership | Payer mon adhésion | Pagar mi suscripción | Mitgliedschaft bezahlen | Mi abbono | Pagar a minha filiação | Betaal voor mijn lidmaatschap | Platite moju članarinu | Betal for mit medlemskab | Betal for mitt medlemskap | Betala mitt medlemskap |
+| Membership CTA > to payment page | Pay for your membership | Payer votre adhésion | Pagar la suscripción | Mitgliedschaft bezahlen | Abbonati ora | Pagar a filiação | Betaal voor je lidmaatschap | Platite svoju članarinu | Betal for dit medlemskab | Betal for ditt medlemskap | Betala ditt medlemskap |
+| Membership CTA > to payment page | Start my membership | Prendre mon adhésion | Activar mi suscripción | Mitgliedschaft starten | Attiva l'abbonamento | Iniciar a minha filiação | Start mijn lidmaatschap | Pokrenite moje članstvo | Start mit medlemskab | Start mitt medlemskap | Starta mitt medlemskap |
+| Membership CTA > to payment page | Start your membership | Prendre votre adhésion | Activar la suscripción | Mitgliedschaft starten | Attiva l'abbonamento | Iniciar a filiação | Start je lidmaatschap | Pokrenite svoje članstvo | Start dit medlemskab | Start ditt medlemskap | Starta ditt medlemskap |
+| Membership > to payment page [imperative] | Start your membership | Prenez votre adhésion | Activa la suscripción | Mitgliedschaft starten | Attiva l'abbonamento | Inicie a sua filiação | Start je lidmaatschap | Pokrenite svoje članstvo | Start dit medlemskab | Start ditt medlemskap | Starta ditt medlemskap |
+| Membership CTA > to payment page | Renew my membership | Renouveler mon adhésion | Renovar mi suscripción | Mitgliedschaft verlängern | Rinnovo l'abbonamento | Renovar a filiação | Vernieuw je lidmaatschap | Produljite svoje članstvo | Forny dit medlemskab | Forny medlemskapet ditt | Förnya mitt medlemskap |
+| Membership > to payment page [imperative] | Renew your membership | Renouvelez votre adhésion | Renova tu suscripción | Verlängern Sie Ihre Mitgliedschaft | Rinnova l'abbonamento | Renove a sua filiação | Vernieuw je lidmaatschap | Produljite svoje članstvo | Forny dit medlemskab | Forny medlemskapet ditt | Förnya ditt medlemskap |
+| Membership CTA > to My Plan page | Join the community | Rejoindre la communauté | Únete a la comunidad | Teil der Community werden | Unisciti alla comunità | Juntar-me à comunidade | Word lid van onze community | Pridružite se zajednici | Bliv en del af fællesskabet | Bli med i fellesskapet | Gå med i communityn |
+| Membership CTA > to My Plan page | Become a member | Devenir membre | Hazte miembro | Mitglied werden | Diventa membro | Tornar-me membro | Word lid | Postanite član | Bliv medlem | Bli medlem | Bli medlem |
+| When people leave reviews about their exchange | Reviews | Avis | Comentarios | Bewertungen | Recensioni | Avaliações | Beoordelingen | Osvrti | Anmeldelser | Anmeldelser | Recensioner |
+| Review CTA | Rate your exchange | Noter votre échange / Noter cet échange | Valora tu intercambio / Valorar intercambio | Tausch bewerten | Valuta il tuo scambio | Avaliar troca | Beoordeel mijn huizenruil | Ocijenite svoju zamjenu | Bedøm dit boligbytte | Vurder boligbyttet ditt | Betygsätt ditt hembyte |
+| Teams | Member Support / Member Support Team | service membres | Servicio de Asistencia | Mitgliedersupport / Mitgliedersupport-Team | Supporto Membri / team Supporto Membri | Suporte aos Membros | Ledenservice | Korisnička podrška | Medlemssupport | Medlemsstøtte | Medlemssupport |
+| Teams | Marketing team | équipe Marketing | equipo de marketing | Marketingteam | Team Marketing | Equipa de Marketing | Marketingteam | Marketinški tim | Marketing team | Markedsføringsteam | Marketingteam |
+| Teams | Product team | équipe Produit | equipo de producto | Produktteam | Team Prodotto | Equipa de Produto | Productteam | Produkt tim | Produkt team | Produktteam | Produktteam |
+| Teams | Team of developers / dev team | équipe développement / nos développeurs | equipo de desarrollo / desarrolladores | Entwicklungsteam / Unsere Entwickler | I nostri sviluppatori | Equipa de Informática | Informaticateam | IT tim | Udviklingsteam | Utviklingsteam | Utvecklingsteam |
+| Teams | Communication team | équipe communication | equipo de comunicación | Kommunikationsteam | team Comunicazione | Equipa de Comunicação | Communicatieteam | Komunikacijski tim | Kommunikationsteam | Kommunikasjonsteam | Kommunikationsteam |
+| Teams | HR team / Human Resources | équipe RH / équipe ressources humaines | equipo de RRHH | Personalabteilung | team Risorse Umane | Equipa de RH / Recursos Humanos | HR team | Odjel ljudskih resursa | Personaleafdeling | HR-team / Personalavdeling | HR-team / Personalavdelning |
+| Teams | The HomeExchange Team | L'équipe HomeExchange | El equipo de HomeExchange | Das HomeExchange-Team | Il team HomeExchange | A equipa HomeExchange | Het HomeExchange Team | The HomeExchange Team | HomeExchange-teamet | HomeExchange-teamet | HomeExchange-teamet |
+| About payment | Payment method | moyen de paiement | Forma de pago | Zahlungsmethode | Metodo di pagamento | Método de pagamento | Betaalmethode | Metoda plaćanja | Betalingsmetode | Betalingsmetode | Betalningsmetod |
+| First step of registering | Sign up, create your home listing / Sign up, create your listing | Inscrivez-vous, créez votre annonce | Regístrate, crea tu anuncio | Registrieren Sie sich und erstellen Sie Ihr Inserat. | Iscriviti, crea il tuo annuncio | Inscreva-se, crie a sua oferta | Registreer je en maak je profiel aan | Prijavite se, izradite oglas svojeg doma | Bliv medlem, opret din profil | Registrer deg, lag oppføringen din | Registrera dig, skapa din profil |
+| Validity of the membership | Membership valid for 1-year | Adhésion valable un an | Suscripción válida durante 1 año | Mitgliedschaft ein Jahr gültig | L'abbonamento è valido per un anno | Filiação válida por 1 ano | Lidmaatschap geldig voor 1 jaar | Članstvo traje 1 godinu | Medlemskabet gælder 1 år | Medlemskapet er gyldig i ett år | Medlemskapet giltigt i 1 år |
+| Finalization | Finalize my exchange | Finaliser mon échange | Registrar intercambio | Meinen Tausch finalisieren | Finalizzo il mio scambio | Finalizar a minha troca | Bevestig mijn huizenruil | Dovršite svoju zamjenu | Bekræft mit boligbytte | Bekreft boligbyttet mitt | Bekräfta mitt hembyte |
+| Hostellerie concept | Nights | Nuitées | Noches / Noches de intercambio | Nächte / Übernachtungen | Pernottamenti | Noites | Nachten | Noći | Nætter | Netter | Nätter |
+| GuestPoints exchange | GuestPoints exchange | échange contre GuestPoints | Intercambio con GuestPoints | GuestPoints-Tausch | Scambio con GuestPoints | Troca por GuestPoints | GuestPoints-ruil | Zamjena temeljena na GuestPoints | Udveksling af GuestPoints | Utveksling av GuestPoints | Hembyte med GuestPoints |
+| HomeExchange guarantees | This exchange is covered by our HomeExchange guarantees. | Cet échange est couvert par les garanties HomeExchange / nos garanties. | Este intercambio está cubierto por el servicio HomeExchange. | Dieser Haustausch ist durch die Garantien von HomeExchange abgesichert. | Questo scambio è coperto dalle garanzie HomeExchange. | Esta troca esta coberta pelas garantias da HomeExchange. | Deze uitwisseling is gedekt door onze HomeExchange-garanties | Ova zamjena pokrivena je s našim HomeExchange garancijama. | Dette boligbytte er dækket af vores HomeExchange garanti. | Dette boligbyttet er dekket av våre HomeExchange-garantier. | Detta hembyte täcks av HomeExchanges garantier. |
+| HomeExchange guarantees | Our guarantees | Nos garanties | Nuestras garantías | Unsere Garantien | Le nostre garanzie | As Nossas Garantias | Onze garanties | Naše garancije | Vores garantier | Våre garantier | Våra garantier |
+| HomeExchange guarantees | Organize your vacations with peace of mind. HomeExchange guarantees protect your exchanges and your home. | Organisez vos vacances en toute sérénité. Les garanties HomeExchange protègent vos échanges et votre logement. | Planifica tus vacaciones con total tranquilidad. Las garantías de HomeExchange cubren todos tus intercambios en caso de cancelación. | Bereiten Sie Ihren Urlaub ganz entspannt vor. Die HomeExchange-Garantien schützen Ihren Haustausch im Falle einer Stornierung. | Organizza la tua vacanza in tutta tranquillità! Le garanzie di HomeExchange coprono tutti i tuoi scambi in caso di cancellazione. | Prepare as suas férias com tranquilidade. As garantias HomeExchange cobrem as suas trocas em caso de cancelamento. | Plan je vakantie zonder zorgen. De HomeExchange-garanties dekken je uitwisselingen in geval van annulering. | Organizirajte svoj odmor mirne duše. HomeExchange jamstva štite Vaše zamjene i Vaš dom. | Arranger dine ferier med ro i sindet. HomeExchange-garantier beskytter dine boligbytninger og dit hjem. | Planlegg feriene dine med full trygghet. HomeExchange garanterer beskyttelse av dine bytter og din bolig. | Planera dina semestrar med sinnesro. HomeExchange-garantier skyddar dina hembyten och ditt hem. |
+| Deposit | Deposit | Caution | Fianza | Kaution | Cauzione | Caução | Waarborgsom | Polog | Depositum | Depositum | Deposition |
+| Referral program | Refer / Invite your friends | Parrainez vos proches / ami·e·s | Invita a tus amigos | Werben Sie Freunde | Invita i tuoi amici | Convide os seus amigos | Beveel vrienden aan / nodig vrienden uit | Preporučite / Pozovite svoje prijatelje | Henvis / Inviter dine venner | Verv vennene dine | Bjud in dina vänner |
+| Referral program | Referral program | Programme de parrainage | Programa de invitar amigos | Empfehlungsprogramm | Programma Invita i tuoi amici | Programa para convidar amigos | aanbevelingsprogramma | Sponzorstvo | Henvisningsprogram | Verveprogram | Hänvisningsprogram |
+| Ambassadors (KEEP THE CAP) | (HomeExchange) Ambassadors | Ambassadeurs et Ambassadrices (HomeExchange) | embajadores (o embajadores y embajadoras, si es un saludo) | (HomeExchange) Botschafter | Ambassador | Embaixadores | Ambassadeurs | Ambasadori | (HomeExchange) Ambassadører | (HomeExchange) Ambassadører | (HomeExchange) Ambassadörer |
+| Our customers (NEVER use customers/users/clients) | member / members | membre / membres | miembro / miembros | Mitglied / Mitglieder | membro/membri | membro/membros | lid/leden | član | medlem/medlemmer | medlem/medlemmer | medlem/medlemmar |
+| Our customers (NEVER use customers/users/clients) | guest / guests | invité·e / invité·e·s | invitado/a / invitados | Gast / Gäste | ospite/ospiti | convidado/convidados | gast/gasten | gost | gæst/gæster | gjest/gjester | gäst/gäster |
+| Our customers (NEVER use customers/users/clients) | host / hosts | hôte / hôte | anfitrión/a / anfitriones | Gastgeber | host/hosts | anfitrião/anfitriões | gastheer/-vrouw / gastgezin of host | domaćin | vært/værter | vert/verter | värd/värdar |
+| Our customers (NEVER use customers/users/clients) | exchange partner | partenaire d'échange | compañero/a de intercambio | Tauschpartner | partner di scambio | parceiro de troca | Ruilpartner / uitwisselingspartner | zamjenski partner // partner u zamjeni | boligbytte partner | byttepartner | bytespartner |
+| New member | New member | Nouveau·elle membre | Miembro nuevo | Neues Mitglied | Nuovo membro | Novo membro | Nieuw lid | Novi član | Nyt medlem | Nytt medlem | Ny medlem |
+| Person who signed up but hasn't subscribed | Newcomer | Inscrit·e | Usuario registrado | Einsteiger | Iscritto/a | Novo utilizador | Nieuwkomer | Novi korisnik | Nybegynder | Nybegynner | Nykomling |
+| Loyalty benefits | Loyalty benefits | Avantages fidélité | Beneficios de fidelidad | Treuevorteile | Vantaggi fedeltà | Vantagens de fidelidade | Beloningen voor je loyaliteit | Prednosti vjernosti | Loyalitetsfordele | Lojalitetsfordeler | Lojalitetsförmåner |
+| LOYALTY BADGE | Loyalty badge | Badge fidélité | Insignia de fidelidad | Treueabzeichen | Badge fedeltà | Emblema de fidelização | Loyaliteitsbadge | Bedž vjernosti | Loyalitetsbadge | Lojalitetsmerke | Lojalitetsmärke |
+| LOYALTY PRICE (long naming) | Reduced loyalty price | Prix réduit fidélité | Tarifa reducida de fidelidad | vergünstigter Treuebeitrag | Tariffa ridotta fedeltà | Preço reduzido de fidelidade | Verlaagd loyaliteitstarief | Snižena cijena zbog vjernosti | Reduceret loyalitetspris | Lojalitetsfordeler | Reducerat lojalitetspris |
+| LOYALTY PRICE (short naming) | Loyalty price | Prix fidélité | Tarifa de fidelidad | Treuebeitrag | Tariffa fedeltà | Preço de fidelidade | Loyaliteitstarief | Cijena zbog vjernosti | Loyalitetspris | Redusert lojalitetspris | Lojalitetspris |
+| GP bonus | 250 GuestPoints bonus | Bonus de 250 GuestPoints | 250 GuestPoints de regalo | 250 Bonus-GuestPoints | Bonus di 250 GuestPoints | 250 GuestPoints de bónus | 250 Bonus GuestPoints | 250 GuestPoints bonusa | 250 GuestPoints bonus | 250 GuestPoints-bonus | 250 GuestPoints-bonus |
+| Home Manual | Home manual | Guide de maison | Manual de la casa | Infomappe zur Unterkunft | Manuale d'accoglienza | manual da casa | Huishandleidingen | Vodič kroz dom | Boligmanual | Bolighåndbok | Husmanual |
+| Sponsor Badge | Referral badge | badge Parrain | insignia de Apadrinamiento | Empfehlungsabzeichen | badge Sponsor | Crachá de Patrocinador | Sponsor Badge | Značka sponzora | Henvisningsbadge | Vervemerke | Värvningsmärke |
+| Sponsor | Referer | Parrain / Marraine | persona/amigo/a que te invitó a HomeExchange | Werbendes Mitglied | Persona che invita / che ti ha invitato | Responsável pelos convites / Pessoa que o(a) convidou | Sponsor | Osoba koja preporučuje | Henviser | Verver | Värvare |
+| Sponsored person | Referee | Filleul·e | Amigos invitados | Geworbene Person | Persona invitata | Convidado(a) | Gesponsord lid | Osoba koju se preporučuje | Henviste/Henvisning | Vervet person | Värvad person / Värvning |
+| Referral code | referral code | code de parrainage | código de invitación | Empfehlungscode | Codice invito | Código de referência | Sponsorcode | Kod za preporuku | Henvisningskode | Vervekode | Inbjudningskod |
+| Hospitality exchange | Private room exchange | Echange en chambre privée | Intercambio de habitación | Gästezimmertausch | Scambio in ospitalità | Trocas de quarto privado | Uitwisseling van een kamer | Gostoprimstvo | Boligbytte i privat værelse | Bytte av privat rom | Privat rumsbyte |
+| Our product | Our website | Notre site | Nuestra/La página web | Unsere Website | Il nostro sito | O nosso site | Onze website | Naša web stranica | Vores hjemmeside | Vår nettside | Vår hemsida |
+| Our product | Our platform | Notre plateforme | Nuestra/La plataforma | Unsere Plattform | La nostra piattaforma | A nossa plataforma | Ons platform | Naša platforma | Vores platform | Vår plattform | Vår plattform |
+| Our product | The website and the app | Le site et l'application / l'app | La página web y la aplicación | Die Website und die App | Il sito web e l'app | O site e a aplicação | De website en de app | Web stranica i aplikacija | Hjemmesiden og appen | Vår nettside og app | Hemsidan och appen |
+| Promo code (use "promo code" only on payment page) | Special code | Code spécial | Código regalo | Gutscheincode / Aktionscode | Codice speciale | Código especial | kortingscode | poseban kod | Specialkode | Gavekode | Specialkod |
+| Name of the sales team for members | Exchange expert | spécialiste des échanges | especialistas en intercambios | Haustausch-Experten | Esperti in scambi | Especialista em trocas | Huizenruil-expert | Stručnjak za zamjene | Bytte-ekspert | Bytteekspert | Hembytesexpert |
+| Calendar filters | Any type | Tout type | Disponible para cualquier intercambio | Alle Tauscharten | Qualsiasi tipo di scambio | Qualquer tipo | Elk type | Bilo koji tip | Alle typer | Alle typer | Alla sorters hembyte |
+| Calendar filters | Reciprocal Exchange | Echange réciproque | Intercambio recíproco | Wechselseitiger Tausch | Scambio reciproco | Troca Recíproca | Wederzijdse ruil | Recipročna zamjena | Gensidigt boligbytte | Gjensidig Bytte | Ömsesidigt hembyte |
+| Calendar filters | GuestPoints Exchange | Contre GuestPoints | Intercambio con GuestPoints | GuestPoints-Tausch | In cambio di GuestPoints | Troca por GuestPoints | Ruil met GuestPoints | Zamjena sa GuestPoints bodovima | GuestPoints boligbytte | Veksling av GuestPoints | Hembyte för GuestPoints |
+| CTA for page my Home | View the home listing | Voir l'annonce | Ver anuncio | Inserat ansehen | Vedere l'annuncio | Ver o anúncio | Bekijk de aanbieding | Pogledajte oglas | Se boligprofilen | Se annonsen | Visa profilen |
+| Block "My home" | Completion | Complété à | Completo al | Vollständig zu | Completa al | Completa | Voltooid | Dovršetak | Udfyldt | Ferdigstillelse | Ifyllt |
+| Block "My home" | Home ID | ID de la maison | Nº de anuncio | Identifikationsnummer der Unterkunft | ID della casa | ID da casa | Huis-ID | ID kuće/stana | Bolig-ID | Bolig-ID | Hemmets ID |
+| Block "My home" | Home published | Maison en ligne | Casa publicada | Unterkunft online | Casa pubblicata | Casa publicada | Huis publiceren | Oglas objavljen | Bolig publiseret | Annonsen publisert | Hem publicerat |
+| Verification | Verification | Vérification | Verificación | Verifizierung | Verifica | verificação | Verificatie | Provjera | Godkendelser | Verifiering | Verifiering |
+| Proof of address | Proof of address | Jutificatif de domicile | Comprobante de dirección | Adressnachweis | Prova di indirizzo | Comprovativo de morada | Adresbewijs | Dokaz adrese | Adressebevis | Adressebevis | Adressbevis |
+| Proof of identity | Proof of identity | Justificatif d'identité | Comprobante de identidad | Identitätsnachweis | Documento d'identità | Comprovativo de identidade | Identificatiebewijs | Dokaz identiteta | Identitetsbevis | Identitetsbevis | Identitetsbevis |
+| Travelers feature | Travelers | Voyageurs | Grupo de viajeros | Reisegruppe | I viaggiatori | Grupo de viagem | Reisgezelschap | Putnici | Rejsegruppe | Reisefølge | Resenärer |
+| Travelers feature | Create my traveling group | Créer mon groupe de voyageurs | Crear mi grupo de viajeros | Erstelle meine Reisegruppe | Creo il mio gruppo di viaggio | Criar o meu grupo de viagem | Creëer mijn reisgezelschap | Kreiraj moju grupu putnika | Opret min rejsegruppe | Opprett mitt reisefølge | Skapa mitt resesällskap |
+| Type of residence | Primary residence | Résidence principale | Residencia principal | Hauptwohnsitz | Residenza principale | Residência principal | Thuisadres | Primarno boravište | Primær bolig | Primærbolig | Huvudbostad |
+| Type of residence | Secondary residence | Résidence secondaire | Segunda residencia | Zweitwohnsitz | Residenza secondaria | Residência secundária | Vakantiehuis | Sekundarno boravište | Sekundær bolig | Sekundærbolig | Sekundär bostad |
+| Surrounding tags | Close surroundings | Environnement direct | Entorno cercano | Umgebung | Dintorni | Arredores | Directe omgeving | Neposredna okolina | Nære omgivelser | Nære omgivelser | Nära omgivning |
+| Surrounding tags | Countryside | Campagne | Campo | Auf dem Land | Campagna | Campo | Platteland / buitenaf | Ruralno okruženje | På landet | Landsbygd | Landsbygd |
+| Surrounding tags | Mountains | Montagne | Montaña | In den Bergen | Montagna | Montanhas | Bergen | Planine | Bjerge | Fjell | Berg |
+| Surrounding tags | Coastal | Bord de mer | Litoral | Am Meer | Mare | Litoral | Aan zee | More | Ved havet | Kyst | Hav |
+| Surrounding tags | Lakes | Lac | Lago | An einem See | Lago | Lagos | Bij een meer | Jezero | Søer | Innsjøer | Sjöar |
+| Surrounding tags | City | Ville | Ciudad | In der Stadt | Città | Cidade | Stad | Grad | By | By | Stad |
+| Surrounding tags | Village | Village | Pueblo | In einem Dorf | Paese | Aldeia | Dorp | Selo | Landsby | Landsby | By |
+| Surrounding tags | Isolated | Isolé | Aislado | Abgelegen | Isolata | Isolada | Afgelegen | Izolirano | Isoleret | Isolert | Isolerat |
+| Surrounding tags | Island | Île | Isla | Auf einer Insel | Isola o penisola | Ilha | Eiland | Otok | Ø | Øy | Ö |
+| Surrounding tags | River | Rivière | Río | An einem Fluss | Fiume | Rio | Rivier | Rijeka | Flod | Elv | Älv/flod |
+| Private room | private room | chambre privée | habitación privada | Gästezimmer | Camera privata | quarto privado | privékamer | privatna soba | Privat værelse | Privat rom | Privat rum |
+| Welcome GuestPoints | welcome GuestPoints | GuestPoints de bienvenue | GuestPoints de bienvenida | Willkommens-GuestPoints | GuestPoints di benvenuto | GuestPoints de boas-vindas | welkomst-GuestPoints | GuestPoints dobrodošlice | velkomst-GuestPoints | velkomst-GuestPoints | Välkomst-GuestPoints |
+| Auto decline | Automatic decline | refus automatique | Rechazo automático | automatische Ablehnung | Rifiuto automatico | Rejeição automática | Automatische afwijzing | Automatsko odbijanje | Automatisk afvisning | Automatisk avslag | Automatisk avböjning |
+| Auto decline | Automatically declined | Déclinée automatiquement | Rechazada automáticamente | Automatisch abgelehnt | Rifiutato in automatico | Automaticamente recusado | Automatisch afgewezen | Automatski odbijeno | Automatisk afvist | Avslått automatisk | Avböjt automatiskt |
+| Auto decline | Declined exchanges | Demandes déclinées | Intercambios rechazados | Abgelehnte Tauschanfragen | Scambi rifiutati | Trocas recusadas | Afgewezen uitwisselingen | Odbijene zamjene | Afviste boligbytter | Avslåtte boligbytter | Avböjda hembyten |
+| Auto decline | This exchange request was automatically declined. | Cette demande d'échange a été déclinée automatiquement. | Esta solicitud de intercambio se ha rechazado automáticamente. | Diese Haustauschanfrage wurde automatisch abgelehnt. | Questa richiesta di scambio è stata rifiutata automaticamente. | Este pedido de troca foi automaticamente recusado. | Dit uitwisselingsverzoek werd automatisch afgewezen. | Ovaj zahtjev za zamjenu je automatski odbijen. | Denne anmodning om boligbytte blev automatisk afvist. | Denne boligbytteforespørselen ble avslått automatisk. | Denna hembytesförfrågan har avböjts automatiskt. |
+| Flexible search feature | Flexible dates filter | Filtre "dates flexibles" | Filtro "fechas flexibles" | Filter "Flexible Daten" | Filtro "date flessibili" | Filtro "datas flexíveis" | Filter "flexibele data" | Fleksibilni datumi | Fleksibelt datofilter / Fleksible datoer | Filter for fleksible datoer | Flexibla datum-filter / Flexibla datum |
+| Type of exchange filters | Any type of exchange | Tout type d'échange | Cualquier tipo de intercambio | Jede Tauschanfrage | Qualsiasi tipo di scambio | Qualquer tipo de pedido de Troca | Elk type ruil | Sve vrste zamjene | Alle typer af boligbytte | Alla typer boligbytte | Alla typer av hembyte |
+| Type of exchange filters | GuestPoints exchange | Echange contre GuestPoints | Intercambio con GuestPoints | GuestPoints-Tausch | Scambio in cambio di GuestPoints | Troca com GuestPoints | Ruil met GuestPoints | Zamjena sa GuestPoints bodovima | Boligbytte med GuestPoints | Boligbytte Mot GuestPoints | Hembyte för GuestPoints |
+| Type of exchange filters | Reciprocal exchange | Echange réciproque | Intercambio recíproco | Wechselseitiger Tausch | Scambio reciproco | Troca Recíproca | Wederzijdse ruil | Recipročna zamjena | Gensidigt boligbytte | Gjensidig Boligbytte | Ömsesidigt hembyte |
+| Reverse search feature | Reverse search | Recherche inversée | Búsqueda inversa | Umgekehrte Suche | Ricerca Inversa | Busca Invertida | Omgekeerd zoeken | Obrnuta pretraga | Omvendt søgning | Reversert Søk | Omvänd sökning |
+| More filters | Quality | Qualité | Calidad | Qualität | Qualità | Qualidade | Kwaliteit | Kvaliteta | Kvalitet | Kvalitet | Kvalitet |
+| More filters | Verified homes | Maisons vérifiées | Casas verificadas | Verifizierte Unterkunft | Case verificate | Casas verificadas | Geverifieerde huizen | Verificirani domovi | Godkendte boliger | Verifiserte boliger | Verifierade hem |
+| More filters | Homes with pictures | Maisons avec photos | Casas con fotos | Unterkünfte mit Bildern | Case con foto | Casas com fotos | Huizen met foto's | Domovi sa slikama | Boliger med billeder | Boliger med bilder | Hem med bilder |
+| More filters | Response rate >80% | Taux de réponse > 80% | Tasa de respuesta > 80% | Antwortrate über 80 % | Tasso di risposta > 80% | Taxa de resposta > 80% | Responspercentage > 80% | Stopa odgovora > 80% | Svarprocent > 80% | Svarprosent > 80% | Svarsfrekvens > 80 % |
+| More filters | GuestPoints / night | GuestPoints / nuit | GuestPoints / noche | GuestPoints pro Nacht | GuestPoints / notte | GuestPoints / noite | GuestPoints / nacht | GuestPoints / noć | GuestPoints/døgn | GuestPoints / natt | GuestPoints/natt |
+| More filters | Type of accommodation | Type de logement | Tipo de alojamiento | Art der Unterkunft | Tipo di casa | Tipo de alojamento | Type accommodatie | Tip doma | Boligtype | Boligtype | Typ av hem |
+| More filters | House | Maison | Casa | Haus | Casa | Casa | Huis | Kuća | Hus | Hus | Hus |
+| More filters | Apartment | Appartement | Piso | Wohnung | Appartamento | Apartamento | Appartement | Stan | Lejlighed | Leilighet | Lägenhet |
+| More filters | Residence | Résidence | Vivienda | Art des Wohnsitzes | Residenza | Residência | Verblijfplaats | Dom | Bolig | Bolig | Hem |
+| More filters | Primary | Principale | Principal | Hauptwohnsitz | Principale | Primária | Eerste | Moj dom | Primære bolig | Primær | Första |
+| More filters | Secondary | Secondaire | Secundaria | Zweitwohnsitz | Secondaria | Secundária | Tweede | Druga | Anden | Sekundær | Andra |
+| More filters | Size | Taille | Tamaño | Größe | Dimensione | Tamanho | Grootte | Veličina | Størrelse | Størrelse | Storlek |
+| More filters | Bedrooms | Chambres | Dormitorios | Schlafzimmer | Stanze | Quartos | Kamers | Spavaće sobe | Værelser | Soverom | Sovrum |
+| More filters | Bathrooms | Salles de bain | Cuartos de baños | Badezimmer | Bagno | WC's | Badkamer | Kupaonica | Badeværelse | Baderom | Badrum |
+| More filters | No temporary beds | Pas de lits d'appoint | No hay camas supletorias | Ausziehcouch | Divano letto | Nenhuma cama não fixa | Geen extra bedden | Bez sklopivih kreveta | Ingen ekstrasenge | Ingen ekstrasenger | Inga extrasängar |
+| More filters | Amenities | Équipements | Comodidades | Ausstattungsmerkmale | Servizi | Amenidades | Uitrusting | Oprema | Faciliteter | Fasiliteter | Faciliteter |
+| More filters | Accessibility | Accessibilité | Accesibilidad | Barrierefreiheit | Accessibilità | Acessibilidade | Toegankelijkheid | Dostupnost | Tilgængelighed | Tilgjengelighet | Tillgänglighet |
+| More filters | Disabled access | Accès personnes à mobilité réduite | Acceso para personas con movilidad reducida | Behindertengerecht | Accesso per disabili | Acesso a pessoas com deficência | Toegang voor gehandicapten | Pristup osobama s invaliditetom | Handicapvenligt | Tilrettelagt tilgang | Tillgänglighetsanpassat |
+| More filters | Last minute | Dernière minute | Último minuto | Last minute | Last minute | Última hora | Last minute | Last minute | Last minute | I siste minutt | Sista minuten |
+| Cleaning fees | Cleaning fees | Frais de ménage | Gastos de limpieza | Reinigungskosten | Spese di pulizia | Taxas de limpeza | Schoonmaakkosten | Naknada za čišćenje | Rengøringsgebyr | Rengjøringsgebyr | Städavgifter |
+| Terms of Use | Violation |  | incumplimiento | Verstoß | Violazione | Infração | Overtreding | Kršenje | Overtrædelse | Overtredelse | Överträdelse |
+| Favorite folders | Favorite folder | Dossier de favoris | Carpeta de favoritos | Favoriten-Ordner | Cartella dei preferiti | Pasta de favoritos | Map met favoriete huizen | Mapa s omiljenima | Mappe med favoritter | Favoritter-mappen | Favoritmapp |
+| Response rate | Response rate | Réactivité / Niveau de réactivité | tasa de respuesta | Antwortrate | Tasso di risposta | Taxa de resposta | Reactiesnelheid | Stopa odgovora | Svartid | Svarprosent | Svarsprocent |
+| Travel wishlist | Travel wishlist | Projets de voyage | Proyectos de viaje | Reiseprojekte | Progetti di viaggio | ideias de viagens | Reisplannen | Planovi za putovanje | Rejseliste | Reiseplaner | Reselista |
+| Responsible travel pledge | Responsible travel pledge | Charte de voyage responsable | Carta de compromiso para viajar de manera consciente | Ein Versprechen für verantwortungsbewusstes Reisen | Dichiarazione del viaggiatore responsabile | Compromisso de viajante responsável | Belofte van een verantwoorde reiziger | Povelja o odgovornom putovanju | Løfte om ansvarlig rejse | Et løfte om ansvarlig reise | Löfte om ansvarsfullt resande |
+| HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days | HomeExchange Days |
+| Only used on HomeExchange Days | meetup | rencontre | encuentro | Treffen | incontro | encontro | bijeenkomst | sastanak | meetup | meetup | träff |
+| The Pets Corner | The Pets Corner | Le Coin des Animaux | El Rincón de las Mascotas | - | - | - | - | - | - | - | - |
 """
 
 SYSTEM_PROMPT += GLOSSARY_TABLE
@@ -1279,7 +1278,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       panelOutput: 'Translation',
       placeholder: 'The translation will appear here with the source / target table and QA checklist.',
       btnDetect: '⟳ Detect',
-      btnTranslate: 'Translate',
+      btnTranslate: 'Translate & Proofread',
       btnClear: 'Clear',
       btnChange: 'Change',
       typeAuto: 'Type: auto',
@@ -1306,9 +1305,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       exportCopied: 'Copied!',
       btnImport: '📂 Import',
       importError: 'Unsupported file. Use .md or .csv',
-      proofTitle: 'Proofreader',
+      proofTitle: 'Proofreader — auto',
       proofPlaceholder: 'Paste or edit the text to proofread here…',
-      btnProofread: '✦ Proofread',
+      btnProofread: '✦ Re-run',
       proofLoadingText: 'Reviewing…',
     },
     fr: {
@@ -1317,7 +1316,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       panelOutput: 'Traduction',
       placeholder: 'La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.',
       btnDetect: '⟳ Détecter',
-      btnTranslate: 'Traduire',
+      btnTranslate: 'Traduire & Relire',
       btnClear: 'Effacer',
       btnChange: 'Changer',
       typeAuto: 'Type auto',
@@ -1344,9 +1343,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       exportCopied: 'Copié !',
       btnImport: '📂 Importer',
       importError: 'Fichier non supporté. Utilise .md ou .csv',
-      proofTitle: 'Proofreader',
+      proofTitle: 'Proofreader — auto',
       proofPlaceholder: 'Colle ou édite ici le texte à relire…',
-      btnProofread: '✦ Relire',
+      btnProofread: '✦ Relancer',
       proofLoadingText: 'Relecture en cours…',
     }
   };
@@ -2236,6 +2235,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       // Populate proofreader tabs — one per language
       buildProofTabs(results);
+
+      // Auto-proofread: open section and run immediately
+      const proofBody = document.getElementById('proofBody');
+      const proofToggle = document.getElementById('proofToggle');
+      if (!proofBody.classList.contains('open')) {
+        proofBody.classList.add('open');
+        proofToggle.className = 'proof-toggle open';
+      }
+      setTimeout(() => proofBody.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      runProofread();
 
     } catch (e) {
       stopLoadingAnim();
