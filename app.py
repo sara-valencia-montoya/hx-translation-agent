@@ -221,6 +221,7 @@ Ces règles sont le résultat de corrections validées. Les appliquer systémati
 - **[ES] Relecture** : Toujours appliquer la relecture IA critique sur chaque langue cible traduite, pas uniquement sur le source.
 - **[FR] CTA adhésion** : Éviter "Souscrire" (connotation bancaire). Préférer "Démarrer mon adhésion".
 - **[ES] "finalize [an/my/the/your] exchange"** : Toujours traduire par "registrar intercambio" — jamais "cerrar", "confirmar", "completar" ni aucune autre formulation. La forme varie (finalize an / my / the / your exchange) mais la traduction ES est toujours "registrar intercambio".
+- **[FR] "secure your [first/an/the] exchange"** : Traduire par "organiser" — jamais "financer" ni aucun autre terme à connotation financière. Ex : "Enough to secure your first exchange" → "De quoi organiser votre premier échange" (et non "De quoi financer votre premier échange"). Cohérent avec la règle GuestPoints : aucun vocabulaire monétaire autour des échanges.
 
 ## Règles de localisation des URLs
 
@@ -737,7 +738,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   .detect-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.06); }
   .detect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .controls-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .controls-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
   .detect-confirm {
     font-size: 13px; padding: 5px 12px;
     background: rgba(126,237,192,0.08);
@@ -965,7 +966,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .lang-row { flex-wrap: wrap; gap: 10px; }
     .lang-checks { flex-wrap: wrap; }
-    .controls-actions { flex-wrap: wrap; }
     .tsv-banner { flex-wrap: wrap; }
     .tsv-selectors { flex-wrap: wrap; gap: 8px; margin-left: 0; width: 100%; }
     .export-bar { flex-wrap: wrap; }
@@ -1525,6 +1525,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('resultsModalBackdrop').className = 'results-modal-backdrop';
   }
 
+  function tsvEscapeCell(cell) {
+    // Google Sheets/Excel split a pasted TSV row on every raw \\t or \\n. Any cell
+    // containing one (multi-paragraph fields, bulleted lists) must be quoted per
+    // RFC 4180, or it silently explodes into extra rows on paste.
+    const s = String(cell ?? '');
+    return /[\\t\\n"]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
   function copyCombinedTSV() {
     const langs = Object.keys(proofResults);
     if (!langs.length) return;
@@ -1533,7 +1541,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const rows = firstRows.map((row, i) => {
       const srcText = translationSourceRows[i]?.source ?? row.original;
       const cols = [row.field, srcText, ...langs.map(l => proofResults[l]?.[i]?.improved || '')];
-      return cols.join('\\t');
+      return cols.map(tsvEscapeCell).join('\\t');
     });
     const tsv = [header, ...rows].join('\\n');
     navigator.clipboard.writeText(tsv).then(() => {
@@ -1815,7 +1823,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const cells = t.split('|').slice(1,-1).map(c =>
         c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1')
       );
-      rows.push(cells.join('\\t'));
+      rows.push(cells.map(tsvEscapeCell).join('\\t'));
     }
     return rows.length ? rows.join('\\n') : raw;
   }
@@ -1850,7 +1858,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const rows = lines.filter(l => l.trim().startsWith('|') && !l.trim().match(/^\\|[-| :]+\\|$/))
       .map(l => l.split('|').slice(1,-1).map(c => {
         const clean = c.trim().replace(/\\*\\*(.+?)\\*\\*/g, '$1');
-        return clean.includes(',') || clean.includes('"') ? '"' + clean.replace(/"/g,'""') + '"' : clean;
+        return clean.includes(',') || clean.includes('"') || clean.includes('\\n') ? '"' + clean.replace(/"/g,'""') + '"' : clean;
       }).join(','));
     const content = rows.length ? rows.join('\\n') : lastProofOutput;
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
