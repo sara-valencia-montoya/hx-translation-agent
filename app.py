@@ -631,6 +631,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   .output-box {
     flex: 1;
+    min-height: 220px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -707,6 +708,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button.clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; }
   button.clear:hover { opacity: 1; border-color: var(--text); color: var(--text); }
+  button.btn-new { background: var(--accent2); color: #06301f; }
+  button.btn-new:hover { background: #9ff5da; }
 
   .lang-row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -813,6 +816,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
   }
   .results-modal-title { font-size: 15px; font-weight: 700; color: var(--accent); }
+  .results-modal-header .btn-new { font-size: 12px; padding: 7px 14px; }
   .results-modal-close {
     background: transparent; border: 1px solid var(--border); color: var(--muted);
     border-radius: 6px; font-size: 14px; padding: 4px 10px; cursor: pointer;
@@ -1076,12 +1080,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </select>
         <div class="spinner" id="spinner"></div>
         <button onclick="runTranslate()" id="btnTranslate" data-i18n="btnTranslate"></button>
+        <button class="btn-new" onclick="newTranslation()" data-i18n="btnNew"></button>
       </div>
       <div class="controls-actions">
         <div id="detectConfirm" class="detect-confirm hidden"></div>
         <button class="export-btn" onclick="document.getElementById('fileImport').click()" data-i18n="btnImport"></button>
         <input type="file" id="fileImport" accept=".md,.csv,.txt" style="display:none" onchange="importFile(event)"/>
-        <button class="clear" onclick="newTranslation()" data-i18n="btnNew"></button>
         <button class="clear" onclick="clearAll()" data-i18n="btnClear"></button>
       </div>
     </div>
@@ -1159,6 +1163,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <span class="results-modal-title">Results table</span>
         <div style="display:flex;gap:10px;align-items:center">
           <button class="export-btn" id="btnCombinedCopy" onclick="copyCombinedTSV()">📋 Copy as TSV</button>
+          <button class="btn-new" onclick="newTranslation()" data-i18n="btnNew"></button>
           <button class="results-modal-close" onclick="closeResultsModal()">✕</button>
         </div>
       </div>
@@ -2065,6 +2070,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     });
     document.getElementById('proofBody').classList.remove('open');
     document.getElementById('proofToggle').className = 'proof-toggle';
+    closeResultsModal();
+    document.getElementById('resultsFab').style.display = 'none';
+    proofResults = {};
+    translationSourceRows = [];
     document.getElementById('inputText').focus();
   }
 
