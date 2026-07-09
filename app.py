@@ -1055,11 +1055,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <option value="social">Social</option>
           <option value="autre" data-i18n="typeOther"></option>
         </select>
+        <div class="spinner" id="spinner"></div>
+        <button onclick="runTranslate()" id="btnTranslate" data-i18n="btnTranslate"></button>
       </div>
       <div class="controls-actions">
         <div id="detectConfirm" class="detect-confirm hidden"></div>
-        <div class="spinner" id="spinner"></div>
-        <button onclick="runTranslate()" id="btnTranslate" data-i18n="btnTranslate"></button>
         <button class="export-btn" onclick="document.getElementById('fileImport').click()" data-i18n="btnImport"></button>
         <input type="file" id="fileImport" accept=".md,.csv,.txt" style="display:none" onchange="importFile(event)"/>
         <button class="clear" onclick="clearAll()" data-i18n="btnClear"></button>
