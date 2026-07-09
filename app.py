@@ -54,30 +54,30 @@ LOGIN_PAGE = """<!DOCTYPE html>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    background: #0f1117; color: #e8edf3;
+    background: #f4f5f8; color: #16181d;
     height: 100vh; display: flex; align-items: center; justify-content: center;
   }
   .card {
-    background: #1a1d27; border: 1px solid #2a2d3a;
+    background: #ffffff; border: 1px solid #e3e6ea;
     border-radius: 16px; padding: 48px 52px; width: 420px;
     display: flex; flex-direction: column; gap: 28px;
   }
   .brand { font-size: 18px; font-weight: 700; }
-  .brand strong { color: #F7A800; }
-  .brand span { color: #8b97a8; font-weight: 400; }
+  .brand strong { color: #fbb341; }
+  .brand span { color: #6b7280; font-weight: 400; }
   h2 { font-size: 22px; font-weight: 700; line-height: 1.3; }
-  p { color: #8b97a8; font-size: 14px; line-height: 1.6; }
+  p { color: #6b7280; font-size: 14px; line-height: 1.6; }
   .google-btn {
     display: flex; align-items: center; justify-content: center; gap: 12px;
-    background: #fff; color: #1f1f1f; border: none; border-radius: 100px;
+    background: #fff; color: #1f1f1f; border: 1px solid #e3e6ea; border-radius: 100px;
     font-size: 15px; font-weight: 600; padding: 13px 24px; cursor: pointer;
     transition: background 0.15s; width: 100%; text-decoration: none;
   }
   .google-btn:hover { background: #f0f0f0; }
   .google-btn svg { flex-shrink: 0; }
   .error {
-    background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3);
-    border-radius: 8px; padding: 12px 16px; color: #f87171; font-size: 14px;
+    background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3);
+    border-radius: 8px; padding: 12px 16px; color: #dc2626; font-size: 14px;
     display: none;
   }
   .error.visible { display: block; }
@@ -559,15 +559,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <title>Translation Assistant — HomeExchange</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --bg-card: #1a1d27;
-    --border: #2a2d3a;
-    --text: #e8edf3;
-    --muted: #8b97a8;
-    --accent: #F7A800;
-    --accent-hover: #ffc53d;
-    --accent2: #7eedc0;
-    --danger: #f87171;
+    --bg: #f4f5f8;
+    --bg-card: #ffffff;
+    --border: #e3e6ea;
+    --text: #16181d;
+    --muted: #6b7280;
+    --accent: #fbb341;
+    --accent-hover: #e8992c;
+    --accent-text: #b45309;
+    --accent2: #2f6b46;
+    --danger: #dc2626;
     --radius: 12px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -585,7 +586,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   .logo { font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
   .logo strong { color: var(--accent); }
-  .badge { font-size: 12px; background: rgba(247,168,0,0.12); color: var(--accent); border: 1px solid rgba(247,168,0,0.25); border-radius: 100px; padding: 3px 10px; }
+  .badge { font-size: 12px; background: rgba(251,179,65,0.12); color: var(--accent-text); border: 1px solid rgba(251,179,65,0.25); border-radius: 100px; padding: 3px 10px; }
 
   main {
     display: flex;
@@ -626,7 +627,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     font-family: inherit;
     transition: border-color 0.15s;
   }
-  textarea:focus { border-color: rgba(109,196,255,0.4); }
+  textarea:focus { border-color: rgba(251,179,65,0.4); }
   textarea::placeholder { color: var(--muted); }
 
   .output-box {
@@ -642,7 +643,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     white-space: pre-wrap;
     word-break: break-word;
   }
-  .output-box.streaming { border-color: rgba(109,196,255,0.3); }
+  .output-box.streaming { border-color: rgba(251,179,65,0.3); }
   /* Result tabs */
   .result-tabs {
     display: flex; gap: 4px; flex-shrink: 0;
@@ -654,19 +655,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     cursor: pointer; transition: all 0.15s; border-radius: 6px 6px 0 0;
     margin-bottom: -1px; letter-spacing: 0.5px;
   }
-  .result-tab:hover { color: var(--text); background: rgba(247,168,0,0.04); }
-  .result-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: transparent; }
+  .result-tab:hover { color: var(--text); background: rgba(251,179,65,0.04); }
+  .result-tab.active { color: var(--accent-text); border-bottom-color: var(--accent-text); background: transparent; }
   .result-panel { display: none; }
   .result-panel.active { display: block; }
   .output-box table { border-collapse: collapse; width: 100%; margin: 16px 0; }
   .output-box th, .output-box td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; vertical-align: top; }
-  .output-box th { background: rgba(109,196,255,0.06); color: var(--accent); font-size: 13px; }
-  .output-box strong { color: #ffffff; }
-  .output-box code { background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-  .output-box h2 { font-size: 17px; font-weight: 700; color: var(--accent); margin: 20px 0 8px; }
-  .output-box h3 { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 8px; padding: 8px 12px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--border); border-radius: 0 6px 6px 0; }
+  .output-box th { background: rgba(251,179,65,0.06); color: var(--accent-text); font-size: 13px; }
+  .output-box strong { color: #000000; }
+  .output-box code { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .output-box h2 { font-size: 17px; font-weight: 700; color: var(--accent-text); margin: 20px 0 8px; }
+  .output-box h3 { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 8px; padding: 8px 12px; background: rgba(0,0,0,0.04); border-left: 3px solid var(--border); border-radius: 0 6px 6px 0; }
   .output-box hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-  .output-box blockquote { border-left: 3px solid var(--accent); margin: 12px 0; padding: 8px 16px; background: rgba(109,196,255,0.04); border-radius: 0 8px 8px 0; color: var(--muted); font-size: 14px; }
+  .output-box blockquote { border-left: 3px solid var(--accent-hover); margin: 12px 0; padding: 8px 16px; background: rgba(251,179,65,0.04); border-radius: 0 8px 8px 0; color: var(--muted); font-size: 14px; }
   .output-box ul, .output-box ol { padding-left: 22px; margin: 8px 0; }
   .output-box li { margin-bottom: 4px; font-size: 15px; }
   .output-box p { margin: 6px 0; }
@@ -689,7 +690,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     outline: none;
     cursor: pointer;
   }
-  select:focus { border-color: rgba(109,196,255,0.4); }
+  select:focus { border-color: rgba(251,179,65,0.4); }
 
   button {
     background: var(--accent);
@@ -708,15 +709,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button.clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; }
   button.clear:hover { opacity: 1; border-color: var(--text); color: var(--text); }
-  button.btn-new { background: var(--accent2); color: #06301f; }
-  button.btn-new:hover { background: #9ff5da; }
+  button.btn-new { background: var(--accent2); color: #ffffff; }
+  button.btn-new:hover { background: #3a7d54; }
 
   .lang-row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   }
   .lang-group { display: flex; align-items: center; gap: 6px; }
   .lang-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .lang-arrow { color: var(--accent); font-size: 18px; font-weight: 700; padding: 0 2px; }
+  .lang-arrow { color: var(--accent-text); font-size: 18px; font-weight: 700; padding: 0 2px; }
   .lang-checks { display: flex; gap: 6px; }
   .lang-check {
     display: flex; align-items: center; gap: 5px;
@@ -725,7 +726,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     font-size: 13px; font-weight: 600; color: var(--muted);
     transition: all 0.15s; user-select: none;
   }
-  .lang-check:has(input:checked) { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.08); }
+  .lang-check:has(input:checked) { border-color: var(--accent-hover); color: var(--accent-text); background: rgba(251,179,65,0.08); }
   .lang-check input { display: none; }
   .detect-btn {
     background: transparent;
@@ -739,20 +740,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     transition: all 0.15s;
     white-space: nowrap;
   }
-  .detect-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.06); }
+  .detect-btn:hover { border-color: var(--accent-hover); color: var(--accent-text); background: rgba(251,179,65,0.06); }
   .detect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .controls-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
   .detect-confirm {
     font-size: 13px; padding: 5px 12px;
-    background: rgba(126,237,192,0.08);
-    border: 1px solid rgba(126,237,192,0.25);
+    background: rgba(47,107,70,0.08);
+    border: 1px solid rgba(47,107,70,0.25);
     border-radius: 6px; color: var(--accent2);
   }
   .detect-confirm.hidden { display: none; }
   .detect-confirm.changed {
-    background: rgba(249,192,128,0.08);
-    border-color: rgba(249,192,128,0.3);
-    color: #f9c080;
+    background: rgba(180,83,9,0.08);
+    border-color: rgba(180,83,9,0.3);
+    color: #b45309;
   }
   .spinner { display: none; }
 
@@ -769,8 +770,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     padding: 12px 16px; cursor: pointer; user-select: none;
     transition: background 0.15s;
   }
-  .proof-header:hover { background: rgba(247,168,0,0.04); }
-  .proof-title { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; }
+  .proof-header:hover { background: rgba(251,179,65,0.04); }
+  .proof-title { font-size: 13px; font-weight: 600; color: var(--accent-text); letter-spacing: 0.5px; text-transform: uppercase; }
   .proof-toggle { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
   .proof-toggle.open { transform: rotate(90deg); }
   .proof-body { display: none; flex-direction: column; gap: 12px; padding: 0 16px 16px; }
@@ -781,7 +782,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     color: var(--text); font-size: 14px; line-height: 1.6; padding: 14px;
     resize: vertical; outline: none; font-family: inherit;
   }
-  .proof-body textarea:focus { border-color: rgba(247,168,0,0.4); }
+  .proof-body textarea:focus { border-color: rgba(251,179,65,0.4); }
   .proof-controls { display: flex; gap: 10px; align-items: center; }
 
   /* Results table FAB button */
@@ -790,11 +791,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     background: var(--accent); color: #1a1200;
     border: none; border-radius: 100px;
     font-size: 13px; font-weight: 700; padding: 9px 18px;
-    cursor: pointer; box-shadow: 0 4px 16px rgba(247,168,0,0.35);
+    cursor: pointer; box-shadow: 0 4px 16px rgba(251,179,65,0.35);
     transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     white-space: nowrap;
   }
-  .results-fab:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(247,168,0,0.45); }
+  .results-fab:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(251,179,65,0.45); }
 
   /* Results modal */
   .results-modal-backdrop {
@@ -806,16 +807,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     display: none; position: fixed;
     top: 50%; left: 50%; transform: translate(-50%, -50%);
     z-index: 400; width: min(95vw, 1500px); max-height: 85vh;
-    background: var(--bg-card); border: 1px solid rgba(247,168,0,0.25);
+    background: var(--bg-card); border: 1px solid rgba(251,179,65,0.25);
     border-radius: 16px; flex-direction: column; overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
   }
   .results-modal.open { display: flex; }
   .results-modal-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
   }
-  .results-modal-title { font-size: 15px; font-weight: 700; color: var(--accent); }
+  .results-modal-title { font-size: 15px; font-weight: 700; color: var(--accent-text); }
   .results-modal-header .btn-new { font-size: 12px; padding: 7px 14px; }
   .results-modal-close {
     background: transparent; border: 1px solid var(--border); color: var(--muted);
@@ -840,7 +841,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
   .results-modal-body thead th, .results-modal-body tr:first-child th {
     position: sticky; top: -20px; z-index: 2;
-    background: #1c1710; box-shadow: 0 1px 0 var(--border);
+    background: var(--bg-card); box-shadow: 0 1px 0 var(--border);
   }
 
   /* Make right panel scrollable to fit proofreader */
@@ -849,7 +850,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   /* TSV banner */
   .tsv-banner {
     display: none; align-items: center; gap: 10px; flex-wrap: wrap;
-    background: rgba(247,168,0,0.07); border: 1px solid rgba(247,168,0,0.25);
+    background: rgba(251,179,65,0.07); border: 1px solid rgba(251,179,65,0.25);
     border-radius: 10px; padding: 10px 14px; font-size: 13px; flex-shrink: 0;
   }
   .tsv-banner.visible { display: flex; }
@@ -881,7 +882,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     cursor: pointer;
     transition: all 0.15s;
   }
-  .export-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(247,168,0,0.06); }
+  .export-btn:hover { border-color: var(--accent-hover); color: var(--accent-text); background: rgba(251,179,65,0.06); }
   .export-btn.success { border-color: var(--accent2); color: var(--accent2); }
 
   /* HX loading state */
@@ -931,8 +932,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     transition: border-color 0.15s;
     display: flex; align-items: flex-start; gap: 14px;
   }
-  .key-option:hover { border-color: var(--accent); }
-  .key-option.selected { border-color: var(--accent); background: rgba(109,196,255,0.05); }
+  .key-option:hover { border-color: var(--accent-hover); }
+  .key-option.selected { border-color: var(--accent-hover); background: rgba(251,179,65,0.05); }
   .key-option input[type=radio] { margin-top: 3px; accent-color: var(--accent); }
   .key-option-body { display: flex; flex-direction: column; gap: 4px; }
   .key-option-title { font-weight: 600; font-size: 15px; }
@@ -950,7 +951,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     padding: 10px 14px;
     outline: none;
   }
-  .key-input-wrap input:focus { border-color: rgba(109,196,255,0.5); }
+  .key-input-wrap input:focus { border-color: rgba(251,179,65,0.5); }
   .key-confirm { width: 100%; padding: 12px; font-size: 15px; border-radius: 10px; }
   .key-status {
     display: flex; align-items: center; gap: 8px;
@@ -1136,8 +1137,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
         <div class="hx-loading" id="hxProofLoading">
           <svg class="hx-mark" id="proofMark" width="56" height="50" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 54,50 C 50,40 40,28 22,14 C 17,19 22,24 30,31 C 38,38 46,44 49,50 C 46,56 38,62 30,69 C 22,76 17,81 22,86 C 40,72 50,60 54,50 Z" fill="#F7A800"/>
-            <path d="M 66,50 C 70,40 80,28 98,14 C 103,19 98,24 90,31 C 82,38 74,44 71,50 C 74,56 82,62 90,69 C 98,76 103,81 98,86 C 80,72 70,60 66,50 Z" fill="#F7A800"/>
+            <path d="M 54,50 C 50,40 40,28 22,14 C 17,19 22,24 30,31 C 38,38 46,44 49,50 C 46,56 38,62 30,69 C 22,76 17,81 22,86 C 40,72 50,60 54,50 Z" fill="#fbb341"/>
+            <path d="M 66,50 C 70,40 80,28 98,14 C 103,19 98,24 90,31 C 82,38 74,44 71,50 C 74,56 82,62 90,69 C 98,76 103,81 98,86 C 80,72 70,60 66,50 Z" fill="#fbb341"/>
           </svg>
           <span class="hx-loading-text" id="proofLoadingText"></span>
         </div>
@@ -1183,7 +1184,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           C 46,56 38,62 30,69
           C 22,76 17,81 22,86
           C 40,72 50,60 54,50 Z
-        " fill="#F7A800"/>
+        " fill="#fbb341"/>
         <!-- Right element: mirror -->
         <path d="
           M 66,50
@@ -1193,7 +1194,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           C 74,56 82,62 90,69
           C 98,76 103,81 98,86
           C 80,72 70,60 66,50 Z
-        " fill="#F7A800"/>
+        " fill="#fbb341"/>
       </svg>
       <span class="hx-loading-text" data-i18n="loadingText"></span>
     </div>
@@ -1304,7 +1305,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       placeholder: 'The translation will appear here with the source / target table and QA checklist.',
       btnDetect: '⟳ Detect',
       btnTranslate: 'Translate & Proofread',
-      btnNew: 'New translation',
+      btnNew: '🔄 New translation',
       btnClear: 'Clear',
       btnChange: 'Change',
       typeAuto: 'Type: auto',
@@ -1343,7 +1344,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       placeholder: 'La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.',
       btnDetect: '⟳ Détecter',
       btnTranslate: 'Traduire & Relire',
-      btnNew: 'Nouvelle traduction',
+      btnNew: '🔄 Nouvelle traduction',
       btnClear: 'Effacer',
       btnChange: 'Changer',
       typeAuto: 'Type auto',
