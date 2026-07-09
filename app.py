@@ -1062,6 +1062,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div id="detectConfirm" class="detect-confirm hidden"></div>
         <button class="export-btn" onclick="document.getElementById('fileImport').click()" data-i18n="btnImport"></button>
         <input type="file" id="fileImport" accept=".md,.csv,.txt" style="display:none" onchange="importFile(event)"/>
+        <button class="clear" onclick="newTranslation()" data-i18n="btnNew"></button>
         <button class="clear" onclick="clearAll()" data-i18n="btnClear"></button>
       </div>
     </div>
@@ -1279,6 +1280,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       placeholder: 'The translation will appear here with the source / target table and QA checklist.',
       btnDetect: '⟳ Detect',
       btnTranslate: 'Translate & Proofread',
+      btnNew: 'New translation',
       btnClear: 'Clear',
       btnChange: 'Change',
       typeAuto: 'Type: auto',
@@ -1317,6 +1319,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       placeholder: 'La traduction apparaîtra ici avec le tableau source / cible et la checklist QA.',
       btnDetect: '⟳ Détecter',
       btnTranslate: 'Traduire & Relire',
+      btnNew: 'Nouvelle traduction',
       btnClear: 'Effacer',
       btnChange: 'Changer',
       typeAuto: 'Type auto',
@@ -2032,6 +2035,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     tsvData = null;
     lastRawOutput = '';
     lastResults = [];
+  }
+
+  function newTranslation() {
+    clearAll();
+    clearProofread();
+    document.getElementById('contentType').value = 'auto';
+    document.querySelectorAll('#targetLangs input[type=checkbox]').forEach(cb => {
+      cb.checked = cb.value === 'FR';
+    });
+    document.getElementById('proofBody').classList.remove('open');
+    document.getElementById('proofToggle').className = 'proof-toggle';
+    document.getElementById('inputText').focus();
   }
 
   function exportCopy() {
