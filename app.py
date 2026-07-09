@@ -802,7 +802,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .results-modal {
     display: none; position: fixed;
     top: 50%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 400; width: min(90vw, 900px); max-height: 80vh;
+    z-index: 400; width: min(95vw, 1500px); max-height: 85vh;
     background: var(--bg-card); border: 1px solid rgba(247,168,0,0.25);
     border-radius: 16px; flex-direction: column; overflow: hidden;
     box-shadow: 0 24px 60px rgba(0,0,0,0.5);
@@ -818,7 +818,26 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     border-radius: 6px; font-size: 14px; padding: 4px 10px; cursor: pointer;
   }
   .results-modal-close:hover { color: var(--text); border-color: var(--text); background: transparent; }
-  .results-modal-body { overflow-y: auto; padding: 20px; }
+  .results-modal-body { overflow: auto; padding: 20px; }
+  /* Combined multi-language table: let columns breathe and scroll horizontally
+     instead of squeezing every language into the modal width (which forced
+     mid-word breaks, e.g. "Field" wrapping to "F/i/e/l/d"). */
+  .results-modal-body table { width: max-content; min-width: 100%; table-layout: auto; }
+  .results-modal-body th, .results-modal-body td {
+    min-width: 150px; max-width: 320px;
+    white-space: normal; word-break: normal; overflow-wrap: break-word;
+  }
+  .results-modal-body th:first-child, .results-modal-body td:first-child {
+    min-width: 44px; max-width: 44px; width: 44px;
+    white-space: nowrap; text-align: center;
+  }
+  .results-modal-body th:nth-child(2), .results-modal-body td:nth-child(2) {
+    min-width: 220px; max-width: 360px;
+  }
+  .results-modal-body thead th, .results-modal-body tr:first-child th {
+    position: sticky; top: -20px; z-index: 2;
+    background: #1c1710; box-shadow: 0 1px 0 var(--border);
+  }
 
   /* Make right panel scrollable to fit proofreader */
   .panel { overflow-y: auto; }
