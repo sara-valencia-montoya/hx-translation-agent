@@ -709,8 +709,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button.clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; }
   button.clear:hover { opacity: 1; border-color: var(--text); color: var(--text); }
-  button.btn-new { background: var(--accent2); color: #ffffff; }
-  button.btn-new:hover { background: #3a7d54; }
+  button.btn-new { background: #1bc9cf; color: #063638; }
+  button.btn-new:hover { background: #12acb2; }
 
   .lang-row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
