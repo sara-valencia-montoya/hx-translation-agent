@@ -1498,6 +1498,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let proofResults = {}; // {lang: [{field, original, improved}]}
   let translationSourceRows = []; // [{field, source}] — original source text per field
 
+  function splitTableRow(tr) {
+    // Treat markdown-escaped pipes (\\|) as literal content rather than a
+    // column separator, so a real "|" inside a cell's text (a URL, a
+    // keyboard shortcut, "before | after" copy, etc.) doesn't silently
+    // truncate the rest of that cell.
+    const ESCAPED_PIPE = '\\u0000';
+    return tr.replace(/\\\\\\|/g, ESCAPED_PIPE).split('|').slice(1, -1)
+      .map(c => c.replace(new RegExp(ESCAPED_PIPE, 'g'), '|'));
+  }
+
   function parseProofTable(raw) {
     const improved = extractImprovedVersion(raw);
     const lines = improved.split('\\n');
@@ -1507,13 +1517,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     for (const line of lines) {
       const tr = line.trim();
       if (!tr.startsWith('|')) {
+        if (tr === '') continue; // a stray blank line doesn't mean the table ended
         if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
         continue;
       }
       tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
-      const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1'));
+      let rawCells = splitTableRow(tr);
       if (!headerSkipped) { headerSkipped = true; continue; }
+      if (rawCells.length > 3) rawCells = [rawCells[0], rawCells[1], rawCells.slice(2).join('|')];
+      const cells = rawCells.map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1'));
       if (cells.length >= 3) rows.push({ field: cells[0], original: cells[1], improved: cells[2] });
       else if (cells.length === 2) rows.push({ field: cells[0], original: '', improved: cells[1] });
     }
@@ -1527,15 +1540,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const firstRows = proofResults[langs[0]];
     if (!firstRows || !firstRows.length) return;
 
+    // Join by field label, not array position: each language's table is
+    // parsed from its own independent model response, and the source-column
+    // table has its own row filtering (see extractSourceColumn), so the
+    // arrays can legitimately end up different lengths or orders. Indexing
+    // them all with the same [i] silently shows the wrong row's text once
+    // they drift.
+    const sourceByField = new Map(translationSourceRows.map(r => [r.field, r.source]));
+
     // Build combined markdown table
     let mdTable = '| Field | Source |' + langs.map(l => ` ${l} |`).join('') + '\\n';
     mdTable += '|---|---|' + langs.map(() => '---|').join('') + '\\n';
 
-    firstRows.forEach((row, i) => {
-      const srcText = translationSourceRows[i]?.source ?? row.original;
+    firstRows.forEach((row) => {
+      const srcText = sourceByField.has(row.field) ? sourceByField.get(row.field) : row.original;
       let line = '| ' + row.field + ' | ' + srcText + ' |';
       langs.forEach(l => {
-        const r = proofResults[l]?.[i];
+        const r = (proofResults[l] || []).find(x => x.field === row.field);
         line += ' ' + (r ? r.improved : '') + ' |';
       });
       mdTable += line + '\\n';
@@ -1568,10 +1589,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const langs = Object.keys(proofResults);
     if (!langs.length) return;
     const firstRows = proofResults[langs[0]];
+    const sourceByField = new Map(translationSourceRows.map(r => [r.field, r.source]));
     const header = ['Field', 'Source', ...langs].join('\\t');
-    const rows = firstRows.map((row, i) => {
-      const srcText = translationSourceRows[i]?.source ?? row.original;
-      const cols = [row.field, srcText, ...langs.map(l => proofResults[l]?.[i]?.improved || '')];
+    const rows = firstRows.map((row) => {
+      const srcText = sourceByField.has(row.field) ? sourceByField.get(row.field) : row.original;
+      const cols = [row.field, srcText, ...langs.map(l => (proofResults[l] || []).find(x => x.field === row.field)?.improved || '')];
       return cols.map(tsvEscapeCell).join('\\t');
     });
     const tsv = [header, ...rows].join('\\n');
@@ -1620,14 +1642,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     for (const line of lines) {
       const tr = line.trim();
       if (!tr.startsWith('|')) {
+        if (tr === '') continue; // a stray blank line doesn't mean the table ended
         if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
         continue;
       }
       tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
-      const cells = tr.split('|').slice(1,-1).map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1'));
+      let rawCells = splitTableRow(tr);
       if (!headerSkipped) { headerSkipped = true; continue; }
-      if (cells.length < 2) continue;
+      if (rawCells.length < 2) continue;
+      if (rawCells.length > 3) rawCells = [rawCells[0], rawCells.slice(1, -1).join('|'), rawCells[rawCells.length - 1]];
+      const cells = rawCells.map(c => c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1'));
       const label = cells[0];
       const source = cells[1];
       const metaLabels = ['note','meta','type','source lang','target lang','source language','target language'];
@@ -1851,7 +1876,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const t = line.trim();
       if (!t.startsWith('|')) continue;
       if (t.match(/^\\|[-| :]+\\|$/)) continue; // separator
-      const cells = t.split('|').slice(1,-1).map(c =>
+      const cells = splitTableRow(t).map(c =>
         c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1')
       );
       rows.push(cells.map(tsvEscapeCell).join('\\t'));
