@@ -833,8 +833,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     white-space: normal; word-break: normal; overflow-wrap: break-word;
   }
   .results-modal-body th:first-child, .results-modal-body td:first-child {
-    min-width: 44px; max-width: 44px; width: 44px;
-    white-space: nowrap; text-align: center;
+    min-width: 110px; max-width: 220px;
   }
   .results-modal-body th:nth-child(2), .results-modal-body td:nth-child(2) {
     min-width: 220px; max-width: 360px;
