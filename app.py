@@ -1498,6 +1498,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   let proofResults = {}; // {lang: [{field, original, improved}]}
   let translationSourceRows = []; // [{field, source}] — original source text per field
 
+  function normalizeTableRow(tr) {
+    // The model occasionally drops the leading and/or trailing pipe on a
+    // table row. Restore them instead of mistaking the row for prose that
+    // ends the table (which would silently discard every row after it).
+    if (!tr.startsWith('|')) tr = '|' + tr;
+    if (!tr.endsWith('|')) tr = tr + '|';
+    return tr;
+  }
+
   function splitTableRow(tr) {
     // Treat markdown-escaped pipes (\\|) as literal content rather than a
     // column separator, so a real "|" inside a cell's text (a URL, a
@@ -1515,12 +1524,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     let headerSkipped = false;
     let tableStarted = false;
     for (const line of lines) {
-      const tr = line.trim();
-      if (!tr.startsWith('|')) {
-        if (tr === '') continue; // a stray blank line doesn't mean the table ended
-        if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
+      let tr = line.trim();
+      if (tr === '') continue; // a stray blank line doesn't mean the table ended
+      if (!tr.startsWith('|') && !tr.includes('|')) {
+        if (tableStarted) break; // genuine prose after the table — stop (e.g. QA checklist)
         continue;
       }
+      tr = normalizeTableRow(tr); // recovers a row missing its leading/trailing pipe
       tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
       let rawCells = splitTableRow(tr);
@@ -1640,12 +1650,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     let headerSkipped = false;
     let tableStarted = false;
     for (const line of lines) {
-      const tr = line.trim();
-      if (!tr.startsWith('|')) {
-        if (tr === '') continue; // a stray blank line doesn't mean the table ended
-        if (tableStarted) break; // stop at end of first table — ignore any later table (e.g. QA checklist)
+      let tr = line.trim();
+      if (tr === '') continue; // a stray blank line doesn't mean the table ended
+      if (!tr.startsWith('|') && !tr.includes('|')) {
+        if (tableStarted) break; // genuine prose after the table — stop (e.g. QA checklist)
         continue;
       }
+      tr = normalizeTableRow(tr); // recovers a row missing its leading/trailing pipe
       tableStarted = true;
       if (tr.match(/^\\|[-| :]+\\|$/)) continue;
       let rawCells = splitTableRow(tr);
@@ -1862,7 +1873,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         if (/improved version/i.test(line)) { found = true; }
         continue;
       }
-      if (line.trim() === '---' || /what.?changed/i.test(line)) break;
+      // Only treat these as "end of table" markers on a real prose line —
+      // a table row's own cell content can legitimately contain a bare
+      // "---" or happen to mention "what changed" mid-sentence, and that
+      // must not truncate the rest of the table.
+      const tr = line.trim();
+      if (!tr.startsWith('|') && (tr === '---' || /what.?changed/i.test(line))) break;
       parts.push(line);
     }
     return found ? parts.join('\\n').trim() : raw;
@@ -1873,8 +1889,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const lines = raw.split('\\n');
     const rows = [];
     for (const line of lines) {
-      const t = line.trim();
-      if (!t.startsWith('|')) continue;
+      let t = line.trim();
+      if (!t.startsWith('|')) {
+        if (!t.includes('|')) continue; // genuine prose, not a table row
+        t = normalizeTableRow(t); // recovers a row missing its leading/trailing pipe
+      }
       if (t.match(/^\\|[-| :]+\\|$/)) continue; // separator
       const cells = splitTableRow(t).map(c =>
         c.trim().replace(/\\*\\*(.+?)\\*\\*/g,'$1').replace(/`([^`]+)`/g,'$1')
