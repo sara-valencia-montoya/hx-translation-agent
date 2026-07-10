@@ -58,7 +58,7 @@ LOGIN_PAGE = """<!DOCTYPE html>
     height: 100vh; display: flex; align-items: center; justify-content: center;
   }
   .card {
-    background: #ffffff; border: 1px solid #e3e6ea;
+    background: #ffffff; border: 1px solid #cdd3db;
     border-radius: 16px; padding: 48px 52px; width: 420px;
     display: flex; flex-direction: column; gap: 28px;
   }
@@ -69,7 +69,7 @@ LOGIN_PAGE = """<!DOCTYPE html>
   p { color: #6b7280; font-size: 14px; line-height: 1.6; }
   .google-btn {
     display: flex; align-items: center; justify-content: center; gap: 12px;
-    background: #fff; color: #1f1f1f; border: 1px solid #e3e6ea; border-radius: 100px;
+    background: #fff; color: #1f1f1f; border: 1px solid #cdd3db; border-radius: 100px;
     font-size: 15px; font-weight: 600; padding: 13px 24px; cursor: pointer;
     transition: background 0.15s; width: 100%; text-decoration: none;
   }
@@ -561,7 +561,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   :root {
     --bg: #f4f5f8;
     --bg-card: #ffffff;
-    --border: #e3e6ea;
+    --border: #cdd3db;
     --text: #16181d;
     --muted: #6b7280;
     --accent: #fbb341;
@@ -612,6 +612,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     color: var(--muted);
     font-weight: 600;
   }
+  .panel-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .panel-label-row .btn-new { font-size: 12px; padding: 6px 14px; }
 
   textarea {
     flex: 1;
@@ -1080,7 +1082,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </select>
         <div class="spinner" id="spinner"></div>
         <button onclick="runTranslate()" id="btnTranslate" data-i18n="btnTranslate"></button>
-        <button class="btn-new" onclick="newTranslation()" data-i18n="btnNew"></button>
       </div>
       <div class="controls-actions">
         <div id="detectConfirm" class="detect-confirm hidden"></div>
@@ -1112,7 +1113,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <!-- Right panel: output -->
   <div class="panel">
-    <div class="panel-label" data-i18n="panelOutput"></div>
+    <div class="panel-label-row">
+      <div class="panel-label" data-i18n="panelOutput"></div>
+      <button class="btn-new" onclick="newTranslation()" data-i18n="btnNew"></button>
+    </div>
     <div class="output-box" id="output">
       <span class="placeholder" data-i18n="placeholder"></span>
     </div>
