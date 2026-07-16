@@ -1344,6 +1344,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       keyActiveOwn: 'Personal key active',
       alertNoKey: 'Enter your Anthropic API key before translating.',
       alertNoText: 'Paste some content to translate.',
+      alertNoTarget: 'Select at least one target language.',
       alertDetectNoText: 'Paste some content first.',
       alertDetectError: 'Detection error: ',
       detectedLabel: 'Source detected: ',
@@ -1383,6 +1384,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       keyActiveOwn: 'Clé personnelle active',
       alertNoKey: 'Entre ta clé API Anthropic avant de traduire.',
       alertNoText: 'Colle un contenu à traduire.',
+      alertNoTarget: 'Sélectionne au moins une langue cible.',
       alertDetectNoText: "Colle d'abord un contenu.",
       alertDetectError: 'Erreur de détection : ',
       detectedLabel: 'Source détectée : ',
@@ -2304,7 +2306,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (!text) { alert(t('alertNoText')); return; }
 
     const targets = getTargetLangs();
-    if (!targets.length) { alert('Select at least one target language.'); return; }
+    if (!targets.length) { alert(t('alertNoTarget')); return; }
 
     const sourceLang = document.getElementById('sourceLang').value;
     const type       = document.getElementById('contentType').value;
