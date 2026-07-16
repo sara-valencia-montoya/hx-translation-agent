@@ -830,6 +830,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
      instead of squeezing every language into the modal width (which forced
      mid-word breaks, e.g. "Field" wrapping to "F/i/e/l/d"). */
   .results-modal-body table { width: max-content; min-width: 100%; table-layout: auto; }
+  /* The scroll container is the modal body, so the output-box inside it sizes to
+     the *visible* width while the max-content table overflows it — leaving the
+     box's border and background cutting across the middle of the table. Grow the
+     box with its content instead. */
+  .results-modal-body .output-box { width: max-content; min-width: 100%; }
   .results-modal-body th, .results-modal-body td {
     min-width: 150px; max-width: 320px;
     white-space: normal; word-break: normal; overflow-wrap: break-word;
@@ -843,7 +848,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .results-modal-body thead th, .results-modal-body tr:first-child th {
     position: sticky; top: -20px; z-index: 2;
     background: var(--bg-card); box-shadow: 0 1px 0 var(--border);
+    padding-right: 36px; /* reserve room for the column copy button */
   }
+  /* Per-column copy. The header cell is already `position: sticky`, which makes
+     it the containing block, so the button anchors to it without upsetting the
+     table layout the way `display: flex` on a cell would. */
+  .col-copy-btn {
+    position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; font-size: 11px; font-weight: 500; line-height: 1;
+    padding: 4px 6px; cursor: pointer; opacity: 0.5; user-select: none;
+    transition: opacity 0.15s, border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .results-modal-body th:hover .col-copy-btn, .col-copy-btn:focus-visible { opacity: 1; }
+  .col-copy-btn:hover { background: rgba(251,179,65,0.1); border-color: var(--accent-hover); color: var(--accent-text); }
+  .col-copy-btn.success { opacity: 1; background: transparent; border-color: var(--accent2); color: var(--accent2); }
 
   /* Make right panel scrollable to fit proofreader */
   .panel { overflow-y: auto; }
@@ -1056,7 +1075,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="lang-group">
           <label class="lang-label" data-i18n="labelTarget"></label>
           <div class="lang-checks" id="targetLangs">
-            <label class="lang-check"><input type="checkbox" value="FR" checked> FR</label>
+            <label class="lang-check"><input type="checkbox" value="FR"> FR</label>
             <label class="lang-check"><input type="checkbox" value="EN"> EN</label>
             <label class="lang-check"><input type="checkbox" value="ES"> ES</label>
             <label class="lang-check"><input type="checkbox" value="IT"> IT</label>
@@ -1543,12 +1562,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return rows;
   }
 
-  function updateCombinedSection() {
+  function buildCombinedGrid() {
+    // Single source of truth for what the results table shows and what its copy
+    // buttons put on the clipboard, so a column copy can never disagree with the
+    // rendered column or with the full-table TSV.
     const langs = Object.keys(proofResults);
-    if (langs.length < 2) { document.getElementById('resultsFab').style.display = 'none'; return; }
-
+    if (!langs.length) return null;
     const firstRows = proofResults[langs[0]];
-    if (!firstRows || !firstRows.length) return;
+    if (!firstRows || !firstRows.length) return null;
 
     // Join by field label, not array position: each language's table is
     // parsed from its own independent model response, and the source-column
@@ -1558,23 +1579,64 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     // they drift.
     const sourceByField = new Map(translationSourceRows.map(r => [r.field, r.source]));
 
-    // Build combined markdown table
-    let mdTable = '| Field | Source |' + langs.map(l => ` ${l} |`).join('') + '\\n';
-    mdTable += '|---|---|' + langs.map(() => '---|').join('') + '\\n';
-
-    firstRows.forEach((row) => {
+    const header = ['Field', 'Source', ...langs];
+    const rows = firstRows.map((row) => {
       const srcText = sourceByField.has(row.field) ? sourceByField.get(row.field) : row.original;
-      let line = '| ' + row.field + ' | ' + srcText + ' |';
-      langs.forEach(l => {
-        const r = (proofResults[l] || []).find(x => x.field === row.field);
-        line += ' ' + (r ? r.improved : '') + ' |';
-      });
-      mdTable += line + '\\n';
+      const cells = langs.map(l => (proofResults[l] || []).find(x => x.field === row.field)?.improved || '');
+      return [row.field, srcText, ...cells];
     });
+    return { header, rows };
+  }
 
-    renderMarkdown(document.getElementById('combinedOutput'), mdTable);
+  function updateCombinedSection() {
+    const langs = Object.keys(proofResults);
+    if (langs.length < 2) { document.getElementById('resultsFab').style.display = 'none'; return; }
+
+    const grid = buildCombinedGrid();
+    if (!grid) return;
+
+    // Build combined markdown table
+    let mdTable = '| ' + grid.header.join(' | ') + ' |\\n';
+    mdTable += '|' + grid.header.map(() => '---|').join('') + '\\n';
+    grid.rows.forEach(cols => { mdTable += '| ' + cols.join(' | ') + ' |\\n'; });
+
+    const box = document.getElementById('combinedOutput');
+    renderMarkdown(box, mdTable);
+    addColumnCopyButtons(box);
     document.getElementById('resultsFab').style.display = '';
     openResultsModal(); // auto-open when ready
+  }
+
+  function addColumnCopyButtons(box) {
+    // Injected here rather than in renderTable() so the generic markdown
+    // renderer stays free of results-table specifics.
+    const headerRow = box.querySelector('table tr:first-child');
+    if (!headerRow) return;
+    Array.from(headerRow.children).forEach((th, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'col-copy-btn';
+      btn.textContent = '📋';
+      btn.title = 'Copy the ' + th.textContent.trim() + ' column';
+      btn.onclick = () => copyCombinedColumn(i, btn);
+      th.appendChild(btn);
+    });
+  }
+
+  function copyCombinedColumn(index, btn) {
+    const grid = buildCombinedGrid();
+    if (!grid) return;
+    // Values only, one row per line, copied raw. Unlike the full-table TSV this
+    // needs no RFC-4180 quoting: parseProofTable() builds every cell from a
+    // single markdown table row, so a cell can't contain a newline and one line
+    // always means one cell. Quoting here would only ever fire on a translation
+    // containing a " and would paste the "" doubling verbatim into a CMS.
+    const text = grid.rows.map(cols => cols[index] ?? '').join('\\n');
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓';
+      btn.className = 'col-copy-btn success';
+      setTimeout(() => { btn.textContent = '📋'; btn.className = 'col-copy-btn'; }, 2000);
+    });
   }
 
   function openResultsModal() {
@@ -1596,16 +1658,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function copyCombinedTSV() {
-    const langs = Object.keys(proofResults);
-    if (!langs.length) return;
-    const firstRows = proofResults[langs[0]];
-    const sourceByField = new Map(translationSourceRows.map(r => [r.field, r.source]));
-    const header = ['Field', 'Source', ...langs].join('\\t');
-    const rows = firstRows.map((row) => {
-      const srcText = sourceByField.has(row.field) ? sourceByField.get(row.field) : row.original;
-      const cols = [row.field, srcText, ...langs.map(l => (proofResults[l] || []).find(x => x.field === row.field)?.improved || '')];
-      return cols.map(tsvEscapeCell).join('\\t');
-    });
+    const grid = buildCombinedGrid();
+    if (!grid) return;
+    const header = grid.header.join('\\t');
+    const rows = grid.rows.map(cols => cols.map(tsvEscapeCell).join('\\t'));
     const tsv = [header, ...rows].join('\\n');
     navigator.clipboard.writeText(tsv).then(() => {
       const btn = document.getElementById('btnCombinedCopy');
@@ -2114,7 +2170,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     clearProofread();
     document.getElementById('contentType').value = 'auto';
     document.querySelectorAll('#targetLangs input[type=checkbox]').forEach(cb => {
-      cb.checked = cb.value === 'FR';
+      cb.checked = false;
     });
     document.getElementById('proofBody').classList.remove('open');
     document.getElementById('proofToggle').className = 'proof-toggle';
